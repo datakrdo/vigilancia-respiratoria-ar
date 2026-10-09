@@ -15,18 +15,20 @@ const events = [...await sql`select distinct event_code, event_name from departm
 const yearInfo = [...await sql`select year, cast(max(last_epi_week) as int) as wk from departments where case_count > 0 group by year order by year desc`];
 const years = yearInfo.map((d) => d.year);
 const partial = new Map(yearInfo.filter((d) => d.wk < 52).map((d) => [d.year, d.wk]));
-const yearLabel = (y) => (partial.has(y) ? `${y} (parcial, hasta SE ${partial.get(y)})` : String(y));
+const yearLabel = (y) => (partial.has(y) ? `${y} · parcial` : String(y));
 const defaultYear = (yearInfo.find((d) => d.wk >= 52) ?? yearInfo[0]).year;
 ```
 
 <div class="controls">
 
 ```js
-const event = view(Inputs.select(events, {label: "Evento", format: (d) => d.event_name, value: events.find((d) => d.event_code === "ETI") ?? events[0]}));
-const year = view(Inputs.select(years, {label: "Año", format: yearLabel, value: defaultYear}));
+const event = view(Inputs.radio(events, {label: "Evento", format: (d) => d.event_name, value: events.find((d) => d.event_code === "ETI") ?? events[0]}));
+const year = view(Inputs.radio(years, {label: "Año", format: yearLabel, value: defaultYear}));
 ```
 
 </div>
+
+${partial.has(year) ? html`<p class="fineprint">${year} es un año en curso: datos hasta la SE ${partial.get(year)}.</p>` : ""}
 
 ```js
 const depts = [...await sql`

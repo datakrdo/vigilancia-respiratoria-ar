@@ -29,7 +29,7 @@ const num = (rows) => rows.map((d) => Object.fromEntries(Object.entries(d).map((
 ```js
 const timing = num([...await sql`select * from timing order by season_start_year desc, total_excess_per_100k desc`]);
 const seasons = [...new Set(timing.map((d) => d.season_label))];
-const season = view(Inputs.select(seasons, {label: "Temporada"}));
+const season = view(Inputs.radio(seasons, {label: "Temporada"}));
 ```
 
 ```js

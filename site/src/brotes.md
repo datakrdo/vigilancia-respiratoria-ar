@@ -13,9 +13,13 @@ import {alert, fmt, rateRamp, toDate} from "./components/theme.js";
 const events = [...await sql`select distinct event_code, event_name from outbreaks order by 2`];
 ```
 
+<div class="controls">
+
 ```js
-const event = view(Inputs.select(events, {label: "Evento", format: (d) => d.event_name, value: events.find((d) => d.event_code === "ETI") ?? events[0]}));
+const event = view(Inputs.radio(events, {label: "Evento", format: (d) => d.event_name, value: events.find((d) => d.event_code === "ETI") ?? events[0]}));
 ```
+
+</div>
 
 ```js
 const rows = [...await sql`
