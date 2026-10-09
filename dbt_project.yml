@@ -1,0 +1,56 @@
+name: "vigilancia_respiratoria_ar"
+version: "1.0.0"
+config-version: 2
+
+profile: "vigilancia_respiratoria_ar"
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  vigilancia_respiratoria_ar:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  vigilancia_respiratoria_ar:
+    georef_departments:
+      +column_types:
+        # digit-only CSV columns get inferred as bigint by default, which silently
+        # drops the leading zeros these INDEC codes rely on (e.g. "02021" -> 2021)
+        department_indec_id: string
+        province_indec_id: string
+    rls_province_access:
+      +column_types:
+        province_indec_id: string
+
+vars:
+  # Unity Catalog Volume holding the raw CSVs (see scripts/fetch_data.py). Not a dbt
+  # `source()`: read_files() parses files with a per-file schema, not registered tables.
+  raw_volume_path: /Volumes/workspace/bronze/raw_data
+  # Event the analyses/ (and the site's "Hallazgos" page) are written for, and the epi week
+  # its season starts at: ETI peaks in winter within the calendar year (week 1); Dengue
+  # seasons run week 31 -> week 30 (`--vars '{finding_event_code: DENGUE, finding_season_start_week: 31}'`).
+  finding_event_code: ETI
+  finding_season_start_week: 1
+  # A corridor built on fewer prior years than this is too thin to call a week an outbreak
+  # (2019 has only a partial 2018 as baseline): the analyses skip those years.
+  finding_min_corridor_years: 3
+  # With a million cases a year, a 95% CI is so narrow that a 2% difference is "significant":
+  # a province is only flagged as elevated when it also clears this rate ratio.
+  finding_min_rate_ratio: 1.5

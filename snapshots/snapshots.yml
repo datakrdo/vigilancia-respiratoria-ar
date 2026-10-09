@@ -1,0 +1,15 @@
+snapshots:
+  - name: snap_snvs_weekly
+    description: >
+      Captures published case counts as they stand at each `dbt snapshot` run. The
+      source keeps being revised after publication (2024 was republished 3 times with
+      different counts), so running this on a schedule records the revision history
+      going forward without keeping every raw file forever.
+      `int_snvs_all_revisions` carries the known historical revisions;
+      `mart_revisions` reads from both.
+    relation: ref('int_snvs_weekly_by_event')
+    config:
+      schema: snapshots
+      unique_key: [department_indec_id, event, age_group_name, year, epi_week]
+      strategy: check
+      check_cols: [case_count]
