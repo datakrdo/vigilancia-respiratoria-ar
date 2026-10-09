@@ -46,8 +46,8 @@
 -- string) into a canonical `event` name, an `event_group` and a `care_setting`: the
 -- respiratory dataset splits each event into outpatient / inpatient / unspecified rows
 -- (and renamed them over time), so the corridor works on the family total while the
--- hospitalization share is still available. Zika (37 cases in 2018, none since) is
--- dropped on purpose; any event not in the seed stays null and fails the `not_null` test.
+-- hospitalization share is still available. Zika (37 cases in 2018, none since) and
+-- Dengue during pregnancy (too few cases to conclude anything) are dropped on purpose; any event not in the seed stays null and fails the `not_null` test.
 --
 -- Respiratory files are rolling windows named `...-hasta-YYYYMMDD`; that date is the
 -- publication date (the one undated file is the 2021-03-29 cut).
@@ -160,7 +160,7 @@ with_published_date as (
         end as published_date
     from unioned
     where
-        {{ normalize_age_desc('event') }} <> 'enfermedad por virus del zika'
+        {{ normalize_age_desc('event') }} not in ('enfermedad por virus del zika', 'dengue durante la gestacion')
         {% if is_incremental() %}
             -- only files that appeared or were replaced since the last run; a corrected
             -- file keeps its name, gets a newer modification time, and its rows are merged over

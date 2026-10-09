@@ -120,7 +120,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ['DENGUE', 'DENGUE_GESTATIONAL', 'ETI', 'BRONQUIOLITIS', 'NEUMONIA']
+                values: ['DENGUE', 'ETI', 'BRONQUIOLITIS', 'NEUMONIA']
       - name: event_group
         data_type: string
         tests:

@@ -72,7 +72,8 @@ sepi_min, cantidad
 ```
 - Department/province codes are now explicitly INDEC (`id_depto_indec_residencia`).
 - `evento` carries 2 values: `'Dengue'` and `'Dengue durante la gestación'` — a useful
-  second event for `dim_event`.
+  second event for `dim_event`, but it has too few cases to conclude anything, so
+  `int_snvs_all_revisions` drops it (like Zika).
 - Rows with a null `sepi_min` at the end of some files (a footer/metadata row, not data)
   → filtered in staging with `sepi_min IS NOT NULL`.
 - Department/province `999`/`desconocido` for unidentified residence → a legitimate row,

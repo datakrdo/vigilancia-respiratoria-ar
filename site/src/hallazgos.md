@@ -29,7 +29,7 @@ const num = (rows) => rows.map((d) => Object.fromEntries(Object.entries(d).map((
 ```js
 const timing = num([...await sql`select * from timing order by season_start_year desc, total_excess_per_100k desc`]);
 const seasons = [...new Set(timing.map((d) => d.season_label))];
-const season = view(Inputs.radio(seasons, {label: "Temporada"}));
+const season = view(Inputs.radio(seasons, {label: "Temporada", value: seasons[0]}));
 ```
 
 ```js
@@ -40,7 +40,7 @@ display(Plot.plot({
   y: {label: null, domain: t.map((d) => d.province_name)},
   marks: [
     Plot.barX(t, {y: "province_name", x: "total_excess_per_100k", fill: "var(--accent)",
-      title: (d) => `${d.province_name}\nExceso: ${fmt(d.total_excess_cases_over_corridor)} casos (${fmt(d.total_excess_per_100k)} cada 100.000)\nLlegó al 50% de los casos en la SE ${d.epi_week_reaching_50pct} y al 90% en la SE ${d.epi_week_reaching_90pct}`, tip: true}),
+      title: (d) => `${d.province_name}\nExceso: ${fmt(d.total_excess_cases_over_corridor)} casos (${fmt(d.total_excess_per_100k)} cada 100.000)\nLlegó al 50% de los casos en la semana ${d.epi_week_reaching_50pct} y al 90% en la semana ${d.epi_week_reaching_90pct}`, tip: true}),
     Plot.ruleX([0])
   ]
 }));
@@ -50,27 +50,19 @@ display(Plot.plot({
 
 ## 2. ¿La temporada avanza de norte a sur?
 
-<p class="so-what">No de forma confiable: el ajuste por latitud explica poco. No hay evidencia para una regla de alerta basada solo en la distancia al norte.</p>
+<p class="so-what">No. Si la temporada bajara de norte a sur, el norte entraría en brote antes que el sur. La latitud explica entre 0% y 4% del orden de llegada en 2022-2025 (14% en 2021): el orden no sigue el mapa. Hay que vigilar todas las provincias a la vez, sin esperar que el brote «baje» desde el norte.</p>
 
 </div>
 
 ```js
-const spread = num([...await sql`select * from spread order by season_start_year`]);
-display(Plot.plot({
-  height: 260, marginBottom: 50,
-  x: {label: "Temporada", tickRotate: -20},
-  y: {label: "R² del ajuste semanas vs. latitud", domain: [0, 1], grid: true},
-  marks: [
-    Plot.barY(spread, {x: "season_label", y: "fit_r2", fill: "var(--accent)",
-      title: (d) => `${d.season_label}\nR² = ${d.fit_r2} con ${d.provinces_reaching_outbreak} provincias en brote\n${d.weeks_per_degree_latitude} semanas por grado de latitud`, tip: true}),
-    Plot.ruleY([0.15], {stroke: alert(dark), strokeDasharray: "4,3"}),
-    Plot.text([{x: spread[0]?.season_label, y: 0.15}], {x: "x", y: "y", text: ["umbral 0,15"], dy: -8, textAnchor: "start", fill: alert(dark)}),
-    Plot.ruleY([0])
-  ]
-}));
+const spread = num([...await sql`select * from spread order by season_start_year desc`]);
 ```
 
-<p class="fineprint">Las temporadas con pocas provincias en brote (aún en curso) pueden dar R² altos por casualidad; el tooltip muestra cuántas son.</p>
+<div class="kpis">
+${spread.map((d) => html`<div class="kpi"><div class="n">${fmt(d.fit_r2 * 100, 0)}%</div><div class="l">temporada ${d.season_label}: del orden en que las provincias entraron en brote lo explica la latitud (${fmt(d.provinces_reaching_outbreak)} provincias en brote)</div></div>`)}
+</div>
+
+<p class="fineprint">Un 100% sería un avance perfecto de norte a sur; un 0%, un orden sin relación con el mapa. Medido como el R² de una regresión de la semana de entrada en brote contra la latitud de cada provincia.</p>
 
 <div class="finding" id="alerta-temprana">
 

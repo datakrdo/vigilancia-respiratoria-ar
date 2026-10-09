@@ -16,7 +16,7 @@ const yearInfo = [...await sql`select year, cast(max(epi_week) as int) as wk fro
 const years = yearInfo.map((d) => d.year);
 const partial = new Map(yearInfo.filter((d) => d.wk < 52).map((d) => [d.year, d.wk]));
 const yearLabel = (y) => (partial.has(y) ? `${y} · parcial` : String(y));
-const defaultYear = (yearInfo.find((d) => d.wk >= 52) ?? yearInfo[0]).year;
+const defaultYear = yearInfo[0].year;
 ```
 
 <div class="controls">
@@ -29,7 +29,7 @@ const year = view(Inputs.radio(years, {label: "Año", format: yearLabel, value: 
 
 </div>
 
-${partial.has(year) ? html`<p class="fineprint">${year} es un año en curso: datos hasta la SE ${partial.get(year)}.</p>` : ""}
+${partial.has(year) ? html`<p class="fineprint">${year} es un año en curso: datos hasta la semana ${partial.get(year)}.</p>` : ""}
 
 ```js
 const rows = [...await sql`
@@ -66,12 +66,14 @@ display(rows.length === 0 ? html`<p>Sin datos para esta combinación.</p>` : Plo
 }));
 ```
 
+${["2020", "2021"].includes(String(year)) && event.event_code !== "DENGUE" ? html`<p class="fineprint"><b>Ojo con ${year}:</b> buena parte de los cuadros respiratorios se notificó como sospecha de COVID-19, un evento que no está en este dataset. Los casos de ${event.event_name} aparecen subestimados.</p>` : ""}
+
 <p class="fineprint"><b>Cómo leerlo:</b> la línea sólida son los casos de ${year}. Las franjas azules son lo habitual para esa semana (hasta el percentil 25: <i>éxito</i>; hasta la mediana: <i>seguridad</i>; hasta el percentil 75: <i>alerta</i>). Por encima, la zona roja es <i>brote</i>, y los puntos rojos marcan las semanas en que los casos la atravesaron. Los primeros años del dataset (2018–2022) usan menos de 5 años de historia; sin ninguno, no hay corredor.</p>
 
 <details><summary>Ver como tabla</summary>
 
 ```js
-display(Inputs.table(rows, {columns: ["epi_week", "week_start_date", "case_count", "zone", "p25", "p50", "p75", "n_years"], header: {epi_week: "SE", week_start_date: "Inicio", case_count: "Casos", zone: "Zona", p25: "p25", p50: "p50", p75: "p75", n_years: "Años de base"}, format: {p25: (d) => fmt(d, 1), p50: (d) => fmt(d, 1), p75: (d) => fmt(d, 1)}}));
+display(Inputs.table(rows, {columns: ["epi_week", "week_start_date", "case_count", "zone", "p25", "p50", "p75", "n_years"], header: {epi_week: "Semana", week_start_date: "Inicio", case_count: "Casos", zone: "Zona", p25: "p25", p50: "p50", p75: "p75", n_years: "Años de base"}, format: {p25: (d) => fmt(d, 1), p50: (d) => fmt(d, 1), p75: (d) => fmt(d, 1)}}));
 ```
 
 </details>

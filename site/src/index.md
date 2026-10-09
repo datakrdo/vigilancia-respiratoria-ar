@@ -16,7 +16,7 @@ const yearInfo = [...await sql`select year, cast(max(last_epi_week) as int) as w
 const years = yearInfo.map((d) => d.year);
 const partial = new Map(yearInfo.filter((d) => d.wk < 52).map((d) => [d.year, d.wk]));
 const yearLabel = (y) => (partial.has(y) ? `${y} · parcial` : String(y));
-const defaultYear = (yearInfo.find((d) => d.wk >= 52) ?? yearInfo[0]).year;
+const defaultYear = yearInfo[0].year;
 ```
 
 <div class="controls">
@@ -28,7 +28,7 @@ const year = view(Inputs.radio(years, {label: "Año", format: yearLabel, value: 
 
 </div>
 
-${partial.has(year) ? html`<p class="fineprint">${year} es un año en curso: datos hasta la SE ${partial.get(year)}.</p>` : ""}
+${partial.has(year) ? html`<p class="fineprint">${year} es un año en curso: datos hasta la semana ${partial.get(year)}.</p>` : ""}
 
 ```js
 const depts = [...await sql`
@@ -64,12 +64,11 @@ const delta = (c, label) => c ? html`<div class="kpi"><div class="n">${c.pct > 0
 ```
 
 <div class="kpis">
-  <div class="kpi"><div class="n">${fmt(total)}</div><div class="l">casos notificados en ${year}${lastWeek ? ` (hasta la SE ${lastWeek})` : ""}</div></div>
-  ${delta(vsWeek, `la SE ${ref} respecto de la misma semana`)}
-  ${delta(vs4, `las 4 semanas hasta la SE ${ref} respecto de las mismas`)}
-  <div class="kpi"><div class="n">${fmt(depts.length)}</div><div class="l">departamentos con al menos un caso</div></div>
+  <div class="kpi"><div class="n">${fmt(total)}</div><div class="l">casos notificados en ${year}${lastWeek ? ` (hasta la semana ${lastWeek})` : ""}</div></div>
+  ${delta(vsWeek, `la semana ${ref} respecto de la misma semana`)}
+  ${delta(vs4, `las 4 semanas hasta la semana ${ref} respecto de las mismas`)}
   <div class="kpi"><div class="n">${prov[0] ? prov[0].province_name : "—"}</div><div class="l">mayor tasa: ${prov[0] ? fmt(prov[0].rate, 1) : "—"} casos cada 100.000 hab.</div></div>
-  <div class="kpi alert"><div class="n">${fmt(inBrote.length)}</div><div class="l">provincias en zona de brote en la SE ${ref}${inBrote.length ? `: ${inBrote.map((d) => d.province_name).join(", ")}` : ""}</div></div>
+  <div class="kpi alert"><div class="n">${fmt(inBrote.length)}</div><div class="l">provincias en zona de brote en la semana ${ref}${inBrote.length ? `: ${inBrote.map((d) => d.province_name).join(", ")}` : ""}</div></div>
 </div>
 
 ## Mapa por departamento
@@ -111,5 +110,7 @@ display(Plot.plot({
   ]
 }));
 ```
+
+${["2020", "2021"].includes(String(year)) && event.event_code !== "DENGUE" ? html`<p class="fineprint"><b>Ojo con ${year}:</b> buena parte de los cuadros respiratorios se notificó como sospecha de COVID-19, un evento que no está en este dataset. Los casos de ${event.event_name} aparecen subestimados.</p>` : ""}
 
 <p class="fineprint">Los comparativos usan la última semana consolidada: se descartan las dos últimas del año en curso porque siempre están incompletas. Las barras claras son provincias con menos de 20 casos: con tan pocos casos la tasa es inestable y no conviene compararla. Las notificaciones se corrigen con el tiempo: las semanas más recientes suelen estar subestimadas (ver <a href="./hallazgos#retraso-de-notificacion">retraso de notificación</a>). Datos por residencia del caso, no por lugar de contagio. Las tasas dependen también de cuánto notifica cada jurisdicción: Santa Fe y CABA notifican muy poca ETI al SNVS 2.0 (Santa Fe, 52 casos cada 100.000 en 2025 contra 3.379 en Córdoba), así que sus tasas bajas no indican menos enfermedad.</p>

@@ -1,6 +1,5 @@
 event_desc_norm,event_name,event_code,event_group,care_setting
 dengue,Dengue,DENGUE,arbovirus,Sin especificar
-dengue durante la gestacion,Dengue durante la gestación,DENGUE_GESTATIONAL,arbovirus,Sin especificar
 enfermedad tipo influenza (eti),Enfermedad tipo influenza (ETI),ETI,respiratory,Sin especificar
 bronquiolitis en menores de 2 anos,Bronquiolitis en menores de 2 años,BRONQUIOLITIS,respiratory,Sin especificar
 bronquiolitis en menores de 2 anos (sin especificar),Bronquiolitis en menores de 2 años,BRONQUIOLITIS,respiratory,Sin especificar
