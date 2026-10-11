@@ -43,7 +43,7 @@ intermediate/
         │
         ▼
 snapshots/
-  snap_snvs_weekly        SCD2 semanal sobre int_snvs_unified
+  snap_snvs_weekly        SCD2 semanal sobre int_snvs_weekly_by_event
         │
         ▼
 marts/
@@ -73,13 +73,13 @@ La ruta del Volume es la var `raw_volume_path` de `dbt_project.yml`.
 Lint (dialecto Databricks, plantilla dbt):
 
 ```bash
-sqlfluff lint models/ analyses/
+sqlfluff lint models/ analyses/ tests/
 ```
 
 ## Actualización automática 🔄
 
 La fuente publica de forma irregular (entre una semana y varios meses), así que el CI
-(`.github/workflows/vigilancia-respiratoria-ar-ci.yml`) revisa **todos los lunes**: `scripts/fetch_data.py`
+(`.github/workflows/ci.yml`) revisa **todos los lunes**: `scripts/fetch_data.py`
 descarga los archivos, sube al Volume solo los nuevos o modificados y recién entonces corre
 `dbt build` (que también registra revisiones en el snapshot). La carga es incremental: `int_snvs_all_revisions` solo resuelve los archivos nuevos o reemplazados desde la última corrida (`dbt build --full-refresh` reconstruye todo), regenera la documentación de dbt
 y vuelve a desplegar el sitio en GitHub Pages. Sin novedades no se reconstruye nada. En pull
@@ -92,18 +92,20 @@ secrets `DATABRICKS_HOST`, `DATABRICKS_HTTP_PATH` y `DATABRICKS_TOKEN`.
   por provincia y temporada, la semana en la que se alcanza
   el 50%/90% de los casos de esa temporada y el exceso total sobre el techo p75 del
   corredor endémico, rankeado por exceso **cada 100 mil habitantes** para que una
-  provincia grande no encabece la lista solo por tamaño. En 2023-24, Tucumán (4.464
-  casos de exceso/100k) y La Rioja (2.725/100k) quedan por encima de Córdoba
-  (2.572/100k), aunque el exceso crudo de Córdoba (100.536 casos) fue el más grande
-  del dataset.
+  provincia grande no encabece la lista solo por tamaño. En 2025 lideran Jujuy (3.315
+  casos de exceso/100k), Catamarca (2.231) y Tucumán (2.038); el 50% de los casos de la
+  temporada llega antes de la semana 22-28, así que las campañas tienen que estar listas
+  en abril-mayo.
 - [`geographic_spread_of_season.sql`](analyses/geographic_spread_of_season.sql) —
   revisa si cada temporada avanza de norte a sur comparando la semana epidemiológica en
-  que pica cada provincia. Hallazgo: no avanza — en 2023-2025 la mayoría de las provincias
-  pica a menos de 3 semanas de la mediana (semana 24-25) — un resultado negativo útil.
+  que pica cada provincia. Hallazgo: no avanza — en 2023-2025 la provincia mediana pica en
+  la semana 24-25 y entre 17 y 23 de las 24 provincias lo hacen a menos de 3 semanas de ella —
+  un resultado negativo útil.
 - [`outbreak_early_warning_lead_time.sql`](analyses/outbreak_early_warning_lead_time.sql) —
   evalúa un umbral de crecimiento de casos como señal de alerta temprana de brote.
-  Recall y precisión rondan el 10%, pero los brotes que sí detecta dan una anticipación
-  mediana de 6 semanas — vale como señal a revisar, no como alerta autónoma.
+  El recall es de cerca del 20% (105/528 brotes) y la precisión de cerca del 35%, pero los
+  brotes que sí detecta dan una anticipación mediana de 6 semanas — vale como señal a
+  revisar, no como alerta autónoma.
 - [`hotspot_concentration_and_persistence.sql`](analyses/hotspot_concentration_and_persistence.sql) —
   concentración de casos por departamento (Pareto/Gini), un Gini ponderado por
   población (curva de Lorenz por tasa, no por casos crudos) para separar concentración
@@ -117,11 +119,18 @@ secrets `DATABRICKS_HOST`, `DATABRICKS_HTTP_PATH` y `DATABRICKS_TOKEN`.
   rate ratio contra el resto del país con IC 95% log-Poisson, para separar un exceso
   real de un artefacto de población chica. Usa población a nivel provincia para que
   CABA (cuya población RENAPER solo publica a nivel ciudad) no quede afuera del
-  ranking. Solo 4 de 21 provincias son significativas en 2025.
+  ranking. En 2025, 12 de 24 provincias son significativas pero solo 6 tienen un exceso
+  material (RR ≥ 1,5), todas del norte y el oeste; en parte rankea intensidad de
+  notificación, no solo riesgo.
 - [`reporting_delay_nowcast_factor.sql`](analyses/reporting_delay_nowcast_factor.sql) —
   factor de corrección (último valor conocido / primer valor publicado) por bucket de
-  demora de notificación, para el pequeño subconjunto de períodos que sí se revisan
-  después de publicados.
+  demora de notificación, para el subconjunto de períodos que sí se revisan después de
+  publicados. Una semana publicada a menos de 7 días de su cierre termina 3,5 veces más
+  alta en la mediana.
+- [`inpatient_reporting_coverage.sql`](analyses/inpatient_reporting_coverage.sql) —
+  revisa si la apertura ambulatorio/internado sirve para comparar gravedad entre
+  provincias. No sirve: desde 2023 solo Salta informa internados, así que no se publica
+  una proporción de internados.
 
 ## Datos y licencias
 

@@ -44,7 +44,7 @@ intermediate/
         │
         ▼
 snapshots/
-  snap_snvs_weekly        weekly SCD2 over int_snvs_unified
+  snap_snvs_weekly        weekly SCD2 over int_snvs_weekly_by_event
         │
         ▼
 marts/
@@ -74,13 +74,13 @@ The Volume path is the `raw_volume_path` var in `dbt_project.yml`.
 Lint (Databricks dialect, dbt templater):
 
 ```bash
-sqlfluff lint models/ analyses/
+sqlfluff lint models/ analyses/ tests/
 ```
 
 ## Automatic updates 🔄
 
 The source publishes irregularly (from a week to several months apart), so CI
-(`.github/workflows/vigilancia-respiratoria-ar-ci.yml`) checks **every Monday**: `scripts/fetch_data.py`
+(`.github/workflows/ci.yml`) checks **every Monday**: `scripts/fetch_data.py`
 downloads the files, uploads only the new or changed ones to the Volume, and only then runs
 `dbt build` (which also records revisions in the snapshot). The load is incremental: `int_snvs_all_revisions` only resolves files that are new or were replaced since the last run (`dbt build --full-refresh` rebuilds everything), regenerates the dbt docs and
 redeploys the site to GitHub Pages. Nothing new → nothing rebuilt. On pull requests it runs
@@ -93,17 +93,17 @@ redeploys the site to GitHub Pages. Nothing new → nothing rebuilt. On pull req
   per province and season, the week reaching 50%/90% of
   that season's cases and total excess over the endemic corridor's p75 ceiling, ranked
   by excess **per 100k population** so big provinces don't top the list just for being
-  big. In 2023-24, Tucumán (4,464 excess cases/100k) and La Rioja (2,725/100k) rank
-  above Córdoba (2,572/100k), even though Córdoba's raw excess (100,536 cases) was the
-  largest in the dataset.
+  big. In 2025, Jujuy (3,315 excess cases/100k), Catamarca (2,231) and Tucumán (2,038)
+  lead; 50% of the season's cases arrive by week 22-28, so campaigns have to land by
+  April-May.
 - [`geographic_spread_of_season.sql`](analyses/geographic_spread_of_season.sql) —
   checks whether each season travels north to south by comparing the epi week in which each
-  province peaks. Finding: it doesn't — in 2023-2025 most provinces peak within 3 weeks of
-  the median (week 24-25) — a useful negative result.
+  province peaks. Finding: it doesn't — in 2023-2025 the median province peaks in week
+  24-25 and 17-23 of 24 provinces peak within 3 weeks of it — a useful negative result.
 - [`outbreak_early_warning_lead_time.sql`](analyses/outbreak_early_warning_lead_time.sql) —
   scores a rolling case-growth threshold as an early-warning signal for outbreak onset.
-  Both recall and precision land around 10%, but the outbreaks it does catch get a
-  median 6-week lead time — worth a review flag, not a stand-alone alert.
+  Recall is about 20% (105/528 outbreaks) and precision about 35%, but the outbreaks it
+  does catch get a median 6-week lead time — worth a review flag, not a stand-alone alert.
 - [`hotspot_concentration_and_persistence.sql`](analyses/hotspot_concentration_and_persistence.sql) —
   Pareto/Gini concentration of cases across departments, a population-weighted Gini
   (Lorenz curve by rate, not raw cases) to separate risk concentration from where people
@@ -114,11 +114,16 @@ redeploys the site to GitHub Pages. Nothing new → nothing rebuilt. On pull req
 - [`provinces_with_significant_excess_rate.sql`](analyses/provinces_with_significant_excess_rate.sql) —
   rate ratio vs. the rest of the country with a 95% log-Poisson CI, to separate a real
   excess from a small-population fluke. Uses province-level population so CABA (whose
-  population RENAPER only publishes citywide) isn't silently dropped. Only 4 of 21
-  provinces clear significance for 2025.
+  population RENAPER only publishes citywide) isn't silently dropped. In 2025, 12 of 24
+  provinces are significant but only 6 are materially elevated (RR ≥ 1.5), all in the
+  north and west; it partly ranks reporting intensity, not only risk.
 - [`reporting_delay_nowcast_factor.sql`](analyses/reporting_delay_nowcast_factor.sql) —
   correction factor (latest known count / first published count) by reporting-lag bucket,
-  for the small subset of periods that do get revised after publication.
+  for the subset of periods that do get revised after publication. A week first published
+  within 7 days of its end ends up 3.5x higher at the median.
+- [`inpatient_reporting_coverage.sql`](analyses/inpatient_reporting_coverage.sql) —
+  checks whether the outpatient/inpatient split can compare severity across provinces. It
+  can't: from 2023 only Salta reports inpatients, so no inpatient share is published.
 
 ## Data and licenses
 

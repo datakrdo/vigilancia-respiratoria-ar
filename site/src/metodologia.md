@@ -14,7 +14,7 @@ title: Metodología
 ## Cómo se calcula
 
 - **Tasa:** casos del período cada 100.000 habitantes, usando el corte de población más cercano al año.
-- **Eventos respiratorios:** bronquiolitis y neumonía se suman entre ambulatorios, internados y sin especificar. Esa apertura solo existe en las publicaciones más recientes y se usa para medir la proporción de internados.
+- **Eventos respiratorios:** bronquiolitis y neumonía se suman entre ambulatorios, internados y sin especificar. Esa apertura solo se informó a nivel nacional en 2020-2022; desde 2023 solo Salta informa internados, por eso no se publica una proporción de internados por provincia.
 - **Año en curso:** el último año está incompleto. El sitio abre por defecto en el último año, aunque sea parcial, y lo marca como tal.
 - **COVID-19 (marzo de 2020 a febrero de 2022):** los cuadros respiratorios se notificaron en buena parte como sospecha de COVID-19, que no está en este dataset, y además circularon menos la influenza y el virus sincicial. Los casos de esos años están subestimados y casi no hay brotes; además, 2020-2021 bajan el corredor de 2022 a 2025.
 - **Tasas con pocos casos:** una provincia con menos de 20 casos tiene una tasa inestable; el gráfico la muestra atenuada.

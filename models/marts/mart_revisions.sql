@@ -6,7 +6,7 @@
 
 -- Grain: event x department x age group x epi week x year x publication. Answers
 -- "how much did a published count change after the fact" (late notification) — most periods have exactly one publication and nothing to compare, but
--- the ones that were republished (2021, 2024, 2025 — see docs/data_profile.md) show
+-- the ones that were republished (every year except 2019 — see docs/data_profile.md) show
 -- the real gap between a first-published and a final count.
 --
 -- Sourced from `int_snvs_all_revisions`, which already carries every known

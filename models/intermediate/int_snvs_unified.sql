@@ -5,8 +5,8 @@
 }}
 
 -- Canonical grain: event x care setting x department x age group x epi week x year — one row per
--- period, no revision history. Several years were published more than once (2021 in
--- legacy, 2023-2026 in current — see docs/data_profile.md); every revision lives in
+-- period, no revision history. Most years were published more than once (2025 appears in
+-- three releases — see docs/data_profile.md); every revision lives in
 -- `int_snvs_all_revisions`, but only the latest (`published_date desc`) is kept
 -- here to avoid double-counting. `mart_revisions` is what uses the other revisions.
 

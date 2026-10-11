@@ -14,7 +14,7 @@ title: Methodology
 ## How it is calculated
 
 - **Rate:** cases in the period per 100,000 population, using the population cut closest to the year.
-- **Respiratory events:** bronchiolitis and pneumonia are summed across outpatient, inpatient and unspecified. That breakdown only exists in the most recent releases and is used to measure the share of inpatients.
+- **Respiratory events:** bronchiolitis and pneumonia are summed across outpatient, inpatient and unspecified. That breakdown was only reported nationwide in 2020-2022; from 2023 only Salta reports inpatients, so no inpatient share by province is published.
 - **Running year:** the latest year is incomplete. The site opens on the latest year by default, even if partial, and marks it as such.
 - **COVID-19 (March 2020 to February 2022):** a good share of respiratory illness was notified as suspected COVID-19, which is not in this dataset, and influenza and respiratory syncytial virus also circulated less. Cases for those years are underestimated and there are almost no outbreaks; in addition, 2020-2021 lower the 2022 to 2025 corridor.
 - **Rates with few cases:** a province with fewer than 20 cases has an unstable rate; the chart shows it faded.

@@ -4,10 +4,9 @@
   )
 }}
 
--- Calendar table at day grain for Power BI time intelligence (mark `date_day` as the date
--- table: it needs one row per day, no gaps, from the first to the last date). Each day
--- carries its calendar attributes and the epidemiological week it falls in, so a report can
--- compare against "the same month last year" (calendar) or "the same epi week last year".
+-- Calendar table at day grain (one row per day, no gaps, from the first to the last date).
+-- Each day carries its calendar attributes and the epidemiological week it falls in, so a
+-- report can compare against "the same month last year" (calendar) or "the same epi week last year".
 --
 -- `dim_epi_week` can hold a week 53 that the calendar rule does not produce (the source
 -- reports one in some years), and that week overlaps the next year's week 1. A day must

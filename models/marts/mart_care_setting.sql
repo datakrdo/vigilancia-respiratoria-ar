@@ -9,9 +9,10 @@
 -- and the fact table sum away. Inpatient cases are the severity signal: the share of an
 -- event that ends up hospitalized.
 --
--- Only the latest releases report the split (earlier files carry everything as
--- "Sin especificar"), so a share is only meaningful where `inpatient + outpatient > 0`;
--- the analyses that read this mart filter on it.
+-- The split was only reported nationwide in 2020-2022; from 2023 on only Salta reports
+-- inpatients and the rest file everything as outpatient or "Sin especificar" (see
+-- `analyses/inpatient_reporting_coverage.sql`). A share is only meaningful where
+-- `inpatient + outpatient > 0`, and not comparable across provinces in recent years.
 
 select
     g.province_indec_id,
