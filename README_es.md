@@ -5,7 +5,7 @@
 Analytics engineering sobre vigilancia epidemiológica en Argentina (SNVS 2.0, Ministerio de
 Salud): infecciones respiratorias agudas (enfermedad tipo influenza, bronquiolitis, neumonía;
 unas 1,3 M de notificaciones por año) y Dengue, con **dbt-databricks** sobre Databricks Free Edition
-(Unity Catalog, SQL warehouse serverless). Pensado para equipos de salud pública: la capa SQL alimenta un sitio público, un modelo de Power BI y datos que se actualizan solos cada semana.
+(Unity Catalog, SQL warehouse serverless). Pensado para equipos de salud pública: la capa SQL alimenta un sitio público y datos que se actualizan solos cada semana.
 
 Fuentes: [infecciones respiratorias](https://datos.salud.gob.ar/dataset/vigilancia-de-infecciones-respiratorias-agudas) y
 [Dengue](https://datos.salud.gob.ar/dataset/vigilancia-de-dengue-y-zika) (CC-BY 4.0). Perfil completo de los datos, "eras" de esquema, publicaciones superpuestas y problemas
@@ -15,7 +15,6 @@ de calidad encontrados: [`docs/data_profile.md`](docs/data_profile.md).
 
 - **[Sitio público](https://datakrdo.github.io/vigilancia-respiratoria-ar/)** (Observable Framework): casos y tasa por departamento, corredor endémico interactivo por provincia, brotes y los seis hallazgos de abajo en lenguaje llano.
 - **[Documentación dbt](https://datakrdo.github.io/vigilancia-respiratoria-ar/dbt/)**: linaje completo, columnas y tests.
-- **Power BI**: modelo compuesto (detalle en DirectQuery + agregación importada) con seguridad a nivel de fila y de objeto: [`docs/powerbi.md`](docs/powerbi.md), proyecto en [`powerbi/`](powerbi/).
 
 Ambos sitios se reconstruyen solos cuando la fuente publica datos nuevos (ver *Actualización automática*).
 
@@ -32,7 +31,7 @@ Ambos sitios se reconstruyen solos cuando la fuente publica datos nuevos (ver *A
 ## Arquitectura (medallion) 🏗️
 
 ```
-seeds/                  georef_departments, age_group_buckets, event_map (crosswalks), rls_province_access (usuarios demo de RLS)
+seeds/                  georef_departments, age_group_buckets, event_map (crosswalks)
 sources (Volume CSVs) ──read_files()──► staging/
   stg_dengue_zika__legacy       (2018-2022, XLS/CSV, esquema viejo)
   stg_dengue_zika__current      (2023+, esquema nuevo)
@@ -51,7 +50,7 @@ snapshots/
         │
         ▼
 marts/
-  dim_geography, dim_province, dim_age_group, dim_event, dim_epi_week, dim_date, dim_user_access
+  dim_geography, dim_province, dim_age_group, dim_event, dim_epi_week, dim_date
   fct_weekly_cases        evento x depto x grupo etario x semana epi x año (densificado)
   mart_incidence_rates    tasas por 100k, acumulado anual, comparación interanual
   mart_endemic_corridor   corredor endémico (percentiles 25/50/75 de los 5 años previos)
@@ -101,10 +100,9 @@ secrets `DATABRICKS_HOST`, `DATABRICKS_HTTP_PATH` y `DATABRICKS_TOKEN`.
   (2.572/100k), aunque el exceso crudo de Córdoba (100.536 casos) fue el más grande
   del dataset.
 - [`geographic_spread_of_season.sql`](analyses/geographic_spread_of_season.sql) —
-  evalúa si cada temporada se propaga geográficamente de norte a sur (distancia
-  haversine, `regr_slope`/`regr_r2` de la semana de entrada en brote vs. latitud).
-  Hallazgo: no se sostiene (R² < 0,15 en todas las temporadas completas) — un
-  resultado negativo útil.
+  revisa si cada temporada avanza de norte a sur comparando la semana epidemiológica en
+  que pica cada provincia. Hallazgo: no avanza — en 2023-2025 la mayoría de las provincias
+  pica a menos de 3 semanas de la mediana (semana 24-25) — un resultado negativo útil.
 - [`outbreak_early_warning_lead_time.sql`](analyses/outbreak_early_warning_lead_time.sql) —
   evalúa un umbral de crecimiento de casos como señal de alerta temprana de brote.
   Recall y precisión rondan el 10%, pero los brotes que sí detecta dan una anticipación

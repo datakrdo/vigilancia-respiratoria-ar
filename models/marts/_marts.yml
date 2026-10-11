@@ -57,31 +57,6 @@ models:
         tests:
           - not_null
 
-  - name: dim_user_access
-    description: >
-      Which provinces each (fictitious) user may see; drives the "Provincial"
-      row-level-security role in the Power BI model.
-    config:
-      contract:
-        enforced: true
-    columns:
-      - name: user_email
-        data_type: string
-        tests:
-          - not_null
-      - name: province_indec_id
-        data_type: string
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('dim_province')
-                field: province_indec_id
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns: [user_email, province_indec_id]
-
   - name: dim_age_group
     description: Canonical age-group buckets, sourced from the `age_group_buckets` seed.
     config:

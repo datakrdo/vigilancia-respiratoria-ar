@@ -9,7 +9,7 @@ title: English
 - **[Situación actual](./)**: cases and rate per 100,000 by department.
 - **[Corredor endémico](./corredor)**: endemic corridor per province, comparing each week with the same weeks of the previous 5 years.
 - **[Brotes](./brotes)**: outbreak episodes (runs of weeks above the corridor's 75th percentile) and their attack rates.
-- **[Hallazgos](./hallazgos)**: six surveillance questions answered in SQL. Highlights: the north-to-south spread hypothesis does not hold; a growth signal alone is a weak outbreak alert but gives weeks of lead time when it hits; hot spots move from season to season; late revisions are rare but can double a count.
+- **[Hallazgos](./hallazgos)**: six surveillance questions answered in SQL. Highlights: the season does not travel north to south: most provinces peak within three weeks of each other; a growth signal alone is a weak outbreak alert but gives weeks of lead time when it hits; hot spots move from season to season; late revisions are rare but can double a count.
 - **[Metodología](./metodologia)**: sources, definitions and limitations.
 
 Data: Ministry of Health (SNVS 2.0) and RENAPER, CC-BY 4.0. Code: MIT. Source and data lineage: [GitHub](https://github.com/datakrdo/vigilancia-respiratoria-ar) and the [dbt docs](https://datakrdo.github.io/vigilancia-respiratoria-ar/dbt/).

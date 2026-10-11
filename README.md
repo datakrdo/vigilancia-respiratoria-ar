@@ -6,7 +6,7 @@ Analytics engineering on epidemiological surveillance in Argentina (SNVS 2.0, Mi
 Health): acute respiratory infections (influenza-like illness, bronchiolitis, pneumonia; about
 1.3 M notifications a year) and Dengue, built with **dbt-databricks** on Databricks Free
 Edition (Unity Catalog, serverless SQL warehouse). Built for public-health teams: the
-SQL layer feeds a public site, a Power BI model and weekly self-updating data.
+SQL layer feeds a public site and weekly self-updating data.
 
 Sources: [respiratory infections](https://datos.salud.gob.ar/dataset/vigilancia-de-infecciones-respiratorias-agudas) and
 [Dengue](https://datos.salud.gob.ar/dataset/vigilancia-de-dengue-y-zika) (CC-BY 4.0). Full data profile, schema "eras", overlapping releases and the quality issues found:
@@ -16,7 +16,6 @@ Sources: [respiratory infections](https://datos.salud.gob.ar/dataset/vigilancia-
 
 - **[Public site](https://datakrdo.github.io/vigilancia-respiratoria-ar/)** (Observable Framework, Spanish): cases and rate by department, interactive endemic corridor per province, outbreaks, and the six findings below in plain language.
 - **[dbt docs](https://datakrdo.github.io/vigilancia-respiratoria-ar/dbt/)**: full lineage, column docs and tests.
-- **Power BI** composite model (DirectQuery detail + imported aggregation) with row- and object-level security: [`docs/powerbi.md`](docs/powerbi.md), project in [`powerbi/`](powerbi/).
 
 Both sites rebuild by themselves when the source publishes new data (see *Automatic updates*).
 
@@ -33,7 +32,7 @@ Both sites rebuild by themselves when the source publishes new data (see *Automa
 ## Architecture (medallion) 🏗️
 
 ```
-seeds/                  georef_departments, age_group_buckets, event_map (crosswalks), rls_province_access (demo users for RLS)
+seeds/                  georef_departments, age_group_buckets, event_map (crosswalks)
 sources (Volume CSVs) ──read_files()──► staging/
   stg_dengue_zika__legacy       (2018-2022, XLS/CSV, old schema)
   stg_dengue_zika__current      (2023+, new schema)
@@ -52,7 +51,7 @@ snapshots/
         │
         ▼
 marts/
-  dim_geography, dim_province, dim_age_group, dim_event, dim_epi_week, dim_date, dim_user_access
+  dim_geography, dim_province, dim_age_group, dim_event, dim_epi_week, dim_date
   fct_weekly_cases        event x department x age group x epi week x year (densified)
   mart_incidence_rates    rate per 100k, cumulative-within-year, year-over-year comparison
   mart_endemic_corridor   endemic corridor (25th/50th/75th percentiles of the 5 prior years)
@@ -101,9 +100,9 @@ redeploys the site to GitHub Pages. Nothing new → nothing rebuilt. On pull req
   above Córdoba (2,572/100k), even though Córdoba's raw excess (100,536 cases) was the
   largest in the dataset.
 - [`geographic_spread_of_season.sql`](analyses/geographic_spread_of_season.sql) —
-  tests whether each season spreads geographically from a north-to-south gradient
-  (haversine distance, `regr_slope`/`regr_r2` of outbreak-onset week vs. latitude).
-  Finding: it doesn't hold up (R² < 0.15 in every full season) — a useful negative result.
+  checks whether each season travels north to south by comparing the epi week in which each
+  province peaks. Finding: it doesn't — in 2023-2025 most provinces peak within 3 weeks of
+  the median (week 24-25) — a useful negative result.
 - [`outbreak_early_warning_lead_time.sql`](analyses/outbreak_early_warning_lead_time.sql) —
   scores a rolling case-growth threshold as an early-warning signal for outbreak onset.
   Both recall and precision land around 10%, but the outbreaks it does catch get a

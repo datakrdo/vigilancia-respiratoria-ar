@@ -50,19 +50,43 @@ display(Plot.plot({
 
 ## 2. ¿La temporada avanza de norte a sur?
 
-<p class="so-what">No. Si la temporada bajara de norte a sur, el norte entraría en brote antes que el sur. La latitud explica entre 0% y 4% del orden de llegada en 2022-2025 (14% en 2021): el orden no sigue el mapa. Hay que vigilar todas las provincias a la vez, sin esperar que el brote «baje» desde el norte.</p>
+<p class="so-what">No: todo el país pica junto. En 2024, 23 de las 24 provincias alcanzaron su pico dentro de las 3 semanas de la mediana (semana 24); en 2023 y 2025, 17 y 18. Solo las temporadas alteradas por la pandemia (2021-2022) se dispersan. No hay que esperar que el brote «baje» desde el norte: se vigilan todas las provincias a la vez.</p>
 
 </div>
 
 ```js
-const spread = num([...await sql`select * from spread order by season_start_year desc`]);
+const spread = num([...await sql`select * from spread order by season_start_year desc, province_lat desc`]);
+const spSeasons = [...new Set(spread.map((d) => d.season_label))];
+const spSeason = view(Inputs.radio(spSeasons, {label: "Temporada", value: spSeasons[0]}));
+```
+
+```js
+const sp = spread.filter((d) => d.season_label === spSeason);
+const spMedian = d3.median(sp, (d) => d.peak_epi_week);
+const spNear = sp.filter((d) => Math.abs(d.peak_epi_week - spMedian) <= 3).length;
 ```
 
 <div class="kpis">
-${spread.map((d) => html`<div class="kpi"><div class="n">${fmt(d.fit_r2 * 100, 0)}%</div><div class="l">temporada ${d.season_label}: del orden en que las provincias entraron en brote lo explica la latitud (${fmt(d.provinces_reaching_outbreak)} provincias en brote)</div></div>`)}
+  <div class="kpi"><div class="n">${fmt(spMedian)}</div><div class="l">semana epidemiológica mediana del pico</div></div>
+  <div class="kpi"><div class="n">${fmt(spNear)} de ${fmt(sp.length)}</div><div class="l">provincias picaron a menos de 3 semanas de esa mediana</div></div>
+  <div class="kpi"><div class="n">${fmt(d3.max(sp, (d) => d.peak_epi_week) - d3.min(sp, (d) => d.peak_epi_week))} sem.</div><div class="l">entre la primera y la última provincia en picar</div></div>
 </div>
 
-<p class="fineprint">Un 100% sería un avance perfecto de norte a sur; un 0%, un orden sin relación con el mapa. Medido como el R² de una regresión de la semana de entrada en brote contra la latitud de cada provincia.</p>
+```js
+display(Plot.plot({
+  marginLeft: 130, height: 22 * sp.length + 60,
+  x: {label: "Semana epidemiológica del pico de casos", grid: true, domain: [1, 52]},
+  y: {label: null, domain: sp.map((d) => d.province_name)},
+  marks: [
+    Plot.rectX([{a: spMedian - 3, b: spMedian + 3}], {x1: "a", x2: "b", fill: "var(--accent)", fillOpacity: 0.12}),
+    Plot.ruleX([spMedian], {stroke: "var(--accent)"}),
+    Plot.dot(sp, {x: "peak_epi_week", y: "province_name", fill: "var(--accent)", r: 4,
+      title: (d) => `${d.province_name}\nPico en la semana ${d.peak_epi_week}`, tip: true})
+  ]
+}));
+```
+
+<p class="fineprint">Provincias ordenadas de norte a sur. La banda marca la mediana ± 3 semanas. Si la temporada bajara desde el norte, los puntos formarían una diagonal; no la forman. El pico es la semana con más casos de la provincia en la temporada.</p>
 
 <div class="finding" id="alerta-temprana">
 
@@ -142,23 +166,26 @@ display(Plot.plot({
 
 ## 6. ¿Cuánto hay que corregir los números de la última semana?
 
-<p class="so-what">Bastante: entre los períodos que se revisan, el valor final es en la mediana ×3,5 el primero si se publicó dentro de la primera semana, ×2 si pasaron entre 8 y 30 días y ×1,3 si pasaron más de 90. Los números de la última semana siempre se leen como un piso.</p>
+<p class="so-what">Bastante: entre los períodos que se revisan, el primer valor publicado dentro de la primera semana es en la mediana el 28% del final (×3,5); entre 8 y 30 días, el 50% (×2); entre 31 y 90, el 67%; pasados 90 días, el 75% (×1,3). Los números de la última semana siempre se leen como un piso.</p>
 
 </div>
 
 ```js
-const nc = num([...await sql`select * from nowcast order by avg_reporting_lag_days`]);
+const nc = num([...await sql`select * from nowcast order by avg_reporting_lag_days`])
+  .map((d) => ({...d, known: 100 / d.median_correction_factor, known_p90: 100 / d.p90_correction_factor}));
 display(Plot.plot({
-  height: 280,
-  x: {label: "Demora entre el fin de la semana y la primera publicación", domain: nc.map((d) => d.reporting_lag_bucket)},
-  y: {label: "Factor de corrección (conteo final / primer conteo)", grid: true, domain: [1, d3.max(nc, (d) => d.p90_correction_factor) * 1.1]},
+  height: 300, marginRight: 30,
+  x: {type: "log", label: "Días entre el fin de la semana y la primera publicación", ticks: nc.map((d) => d.avg_reporting_lag_days), tickFormat: (d) => `${d} d`},
+  y: {label: "% del valor final ya conocido", domain: [0, 100], grid: true},
   marks: [
-    Plot.barY(nc, {x: "reporting_lag_bucket", y1: 1, y2: "p90_correction_factor", fill: "var(--accent)", fillOpacity: 0.35,
-      title: (d) => `${d.reporting_lag_bucket}: ${fmt(d.n_periods)} períodos revisados\nMediana ×${d.median_correction_factor} · percentil 90 ×${d.p90_correction_factor}`, tip: true}),
-    Plot.barY(nc, {x: "reporting_lag_bucket", y1: 1, y2: "median_correction_factor", fill: "var(--accent)"}),
-    Plot.ruleY([1])
+    Plot.areaY(nc, {x: "avg_reporting_lag_days", y1: "known_p90", y2: "known", fill: "var(--accent)", fillOpacity: 0.2}),
+    Plot.line(nc, {x: "avg_reporting_lag_days", y: "known", stroke: "var(--accent)", strokeWidth: 2}),
+    Plot.dot(nc, {x: "avg_reporting_lag_days", y: "known", fill: "var(--accent)", r: 4,
+      title: (d) => `${d.reporting_lag_bucket}: ${fmt(d.n_periods)} períodos revisados\nMediana: se conoce el ${fmt(d.known, 0)}% del final (×${d.median_correction_factor})\nPercentil 90: solo el ${fmt(d.known_p90, 0)}% (×${d.p90_correction_factor})`, tip: true}),
+    Plot.text(nc, {x: "avg_reporting_lag_days", y: "known", text: (d) => `${fmt(d.known, 0)}%`, dy: -12, fontWeight: "bold"}),
+    Plot.ruleY([100])
   ]
 }));
 ```
 
-<p class="fineprint">Barra sólida: mediana. Barra clara: percentil 90.</p>
+<p class="fineprint">Línea: mediana. Banda: hasta el caso desfavorable (percentil 90). Solo cuenta períodos que después se revisaron, así que exagera la corrección de una semana típica. La demora de 0 a 7 días tiene pocos períodos (826).</p>

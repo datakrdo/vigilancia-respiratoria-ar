@@ -1,30 +1,6 @@
 version: 2
 
 exposures:
-  - name: vigilancia_respiratoria_ar_powerbi
-    label: Vigilancia AR - Power BI report
-    type: dashboard
-    maturity: medium
-    url: https://github.com/datakrdo/vigilancia-respiratoria-ar/tree/main/powerbi
-    description: >
-      Power BI composite model (DirectQuery detail + imported aggregates) with
-      row-level and object-level security. Spec in docs/powerbi.md.
-    depends_on:
-      - ref('fct_weekly_cases')
-      - ref('mart_incidence_rates')
-      - ref('mart_endemic_corridor')
-      - ref('mart_outbreaks')
-      - ref('mart_revisions')
-      - ref('dim_geography')
-      - ref('dim_province')
-      - ref('dim_epi_week')
-      - ref('dim_date')
-      - ref('dim_event')
-      - ref('dim_age_group')
-      - ref('dim_user_access')
-    owner:
-      name: datakrdo
-
   - name: vigilancia_respiratoria_ar_public_site
     label: Vigilancia AR - public site
     type: application
