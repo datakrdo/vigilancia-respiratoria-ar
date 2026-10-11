@@ -19,7 +19,7 @@ grupo_edad_desc, cantidad_casos
 ## How the pipeline handles the source
 
 - **Rolling windows.** Each release covers one to three years and the next one re-publishes the
-  overlap (e.g. 2025 appears in the 2025-09, 2026-03 and 2026-09 files, with 307k / 471k / 474k
+  overlap (e.g. 2025 appears in the 2025-09, 2026-03 and 2026-09 files, with 818k / 1.25M / 1.26M
   ETI cases). Every file is kept as a revision (this feeds `mart_revisions` directly);
   `int_snvs_unified` keeps the latest per year and event group. Publication date is the
   `hasta-YYYYMMDD` in the file name; the one undated file is the 2021-03-29 cut.
