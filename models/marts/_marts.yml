@@ -42,7 +42,7 @@ models:
   - name: dim_province
     description: >
       Province dimension (incl. the synthetic "Unknown" province), derived from
-      `dim_geography`. Shared filter and RLS anchor for the BI model.
+      `dim_geography`. Shared province filter for the marts.
     config:
       contract:
         enforced: true

@@ -5,7 +5,7 @@
 }}
 
 -- One row per province (including the synthetic "Unknown" one), derived from
--- `dim_geography`. Shared slicer / RLS anchor in BI: province-grain marts
+-- `dim_geography`. Shared province filter: province-grain marts
 -- (`mart_endemic_corridor`, `mart_outbreaks`) join here directly, and
 -- department-grain ones reach it through `dim_geography`.
 
