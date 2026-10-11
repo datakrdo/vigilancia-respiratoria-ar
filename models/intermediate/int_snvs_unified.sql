@@ -35,7 +35,6 @@ canonical_file_per_year as (
 )
 
 select
-    r.schema_era,
     r.department_indec_id,
     r.year,
     r.epi_week,

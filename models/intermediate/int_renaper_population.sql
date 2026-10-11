@@ -9,8 +9,7 @@
 -- department code (unreliable across sources, per docs/data_profile.md).
 --
 -- CABA is published as a single citywide row here ("Ciudad Autónoma de Buenos
--- Aires"), not broken down into its 15 comunas the way Georef (and the dengue/zika
--- current-era source) is. That citywide row doesn't name-match any individual
+-- Aires"), not broken down into its 15 comunas the way Georef is. That citywide row doesn't name-match any individual
 -- Georef department, so it falls through to the per-province "Unknown department"
 -- synthetic id (`province_indec_id || '999'`, same fallback `int_snvs_unified`
 -- uses) — meaning CABA's population is attached to that synthetic member, not to any

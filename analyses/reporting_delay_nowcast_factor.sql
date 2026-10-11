@@ -6,8 +6,7 @@
 -- to its first publication) bucketed, with the median and p90 correction
 -- factor (latest known count / first published count) observed in each
 -- bucket.
--- Finding: for ETI, 69,841 periods changed after first publication -- far more than for
--- Dengue -- and the correction is large for the fresh ones: the median factor is 3.5x for
+-- Finding: for ETI, 69,841 periods changed after first publication, and the correction is large for the fresh ones: the median factor is 3.5x for
 -- periods first published within 7 days of the week's end (p90 15.9x, only 826 periods),
 -- 2.0x for 8-30 days (p90 5.5x), 1.5x for 31-90 days and 1.3x beyond 90 days. Counts for
 -- the latest weeks must be read as a floor, and a nowcast correction by lag bucket is

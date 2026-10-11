@@ -41,8 +41,7 @@ vars:
   # `source()`: read_files() parses files with a per-file schema, not registered tables.
   raw_volume_path: /Volumes/workspace/bronze/raw_data
   # Event the analyses/ (and the site's "Hallazgos" page) are written for, and the epi week
-  # its season starts at: ETI peaks in winter within the calendar year (week 1); Dengue
-  # seasons run week 31 -> week 30 (`--vars '{finding_event_code: DENGUE, finding_season_start_week: 31}'`).
+  # its season starts at: ETI peaks in winter within the calendar year (week 1).
   finding_event_code: ETI
   finding_season_start_week: 1
   # A corridor built on fewer prior years than this is too thin to call a week an outbreak

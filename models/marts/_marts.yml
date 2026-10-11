@@ -76,7 +76,7 @@ models:
 
   - name: dim_event
     description: >
-      Canonical events of the two SNVS 2.0 datasets (Dengue, acute respiratory infections),
+      Canonical events of the SNVS 2.0 acute respiratory infections dataset,
       from the `event_map` seed. Respiratory events are the family total; the care-setting
       split lives in `mart_care_setting`.
     config:
@@ -95,14 +95,14 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ['DENGUE', 'ETI', 'BRONQUIOLITIS', 'NEUMONIA']
+                values: ['ETI', 'BRONQUIOLITIS', 'NEUMONIA']
       - name: event_group
         data_type: string
         tests:
           - not_null
           - accepted_values:
               arguments:
-                values: ['arbovirus', 'respiratory']
+                values: ['respiratory']
 
   - name: dim_epi_week
     description: Epidemiological week calendar (PAHO/CDC convention).

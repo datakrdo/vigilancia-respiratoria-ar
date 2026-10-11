@@ -7,7 +7,7 @@
 -- the lead-time distribution for the outbreaks a signal did catch.
 -- Finding: for ETI, recall is about 20% (105/528 outbreaks had a preceding signal) and
 -- precision about 35% (209/588 signals were followed by one) -- a single province-level
--- growth threshold is a weak predictor on its own, better than for Dengue but still
+-- growth threshold is a weak predictor on its own,
 -- missing four of five outbreaks. When it does catch a real outbreak the lead time is
 -- meaningful: a median of 6 weeks (p10 of 2 weeks in the worst cases) is enough runway
 -- to act on, which is why this is worth a "review" flag rather than either an automated

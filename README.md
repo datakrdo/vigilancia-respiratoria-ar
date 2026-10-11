@@ -4,17 +4,16 @@
 
 Analytics engineering on epidemiological surveillance in Argentina (SNVS 2.0, Ministry of
 Health): acute respiratory infections (influenza-like illness, bronchiolitis, pneumonia; about
-1.3 M notifications a year) and Dengue, built with **dbt-databricks** on Databricks Free
+1.3 M notifications a year) built with **dbt-databricks** on Databricks Free
 Edition (Unity Catalog, serverless SQL warehouse). Built for public-health teams: the
 SQL layer feeds a public site and weekly self-updating data.
 
-Sources: [respiratory infections](https://datos.salud.gob.ar/dataset/vigilancia-de-infecciones-respiratorias-agudas) and
-[Dengue](https://datos.salud.gob.ar/dataset/vigilancia-de-dengue-y-zika) (CC-BY 4.0). Full data profile, schema "eras", overlapping releases and the quality issues found:
+Sources: [respiratory infections](https://datos.salud.gob.ar/dataset/vigilancia-de-infecciones-respiratorias-agudas) (CC-BY 4.0). Full data profile, overlapping releases and the quality issues found:
 [`docs/data_profile.md`](docs/data_profile.md).
 
 ## See it 👀
 
-- **[Public site](https://datakrdo.github.io/vigilancia-respiratoria-ar/)** (Observable Framework, Spanish): cases and rate by department, interactive endemic corridor per province, outbreaks, and the six findings below in plain language.
+- **[Public site](https://datakrdo.github.io/vigilancia-respiratoria-ar/)** (Observable Framework, Spanish and English): cases and rate by department, interactive endemic corridor per province, outbreaks, and the six findings below in plain language.
 - **[dbt docs](https://datakrdo.github.io/vigilancia-respiratoria-ar/dbt/)**: full lineage, column docs and tests.
 
 Both sites rebuild by themselves when the source publishes new data (see *Automatic updates*).
@@ -34,8 +33,6 @@ Both sites rebuild by themselves when the source publishes new data (see *Automa
 ```
 seeds/                  georef_departments, age_group_buckets, event_map (crosswalks)
 sources (Volume CSVs) ──read_files()──► staging/
-  stg_dengue_zika__legacy       (2018-2022, XLS/CSV, old schema)
-  stg_dengue_zika__current      (2023+, new schema)
   stg_respiratory               (IRA 2018+, rolling-window releases)
   stg_renaper_population        (RENAPER identified population by department)
         │
@@ -93,7 +90,7 @@ redeploys the site to GitHub Pages. Nothing new → nothing rebuilt. On pull req
 ## Findings (`analyses/`) 🔍
 
 - [`season_timing_and_severity.sql`](analyses/season_timing_and_severity.sql) —
-  per province and Dengue season (epi week 31 → week 30), the week reaching 50%/90% of
+  per province and season, the week reaching 50%/90% of
   that season's cases and total excess over the endemic corridor's p75 ceiling, ranked
   by excess **per 100k population** so big provinces don't top the list just for being
   big. In 2023-24, Tucumán (4,464 excess cases/100k) and La Rioja (2,725/100k) rank
@@ -110,11 +107,10 @@ redeploys the site to GitHub Pages. Nothing new → nothing rebuilt. On pull req
 - [`hotspot_concentration_and_persistence.sql`](analyses/hotspot_concentration_and_persistence.sql) —
   Pareto/Gini concentration of cases across departments, a population-weighted Gini
   (Lorenz curve by rate, not raw cases) to separate risk concentration from where people
-  live, plus season-to-season Jaccard overlap of the top decile by rate. Dengue is
-  extremely concentrated by raw count (Gini 0.85-0.98) but *not* persistent (Jaccard
-  0.0-0.14) — the hot spots move. The population-weighted Gini runs lower every season
-  (e.g. 2023-24: 0.85 raw vs. 0.57 weighted), showing part of the raw concentration is
-  just population, not risk.
+  live, plus season-to-season Jaccard overlap of the top decile by rate. ETI is concentrated (17-28% of departments hold 80% of a
+  season's cases, raw Gini 0.70-0.80) and partly persistent (top-decile Jaccard 0.45-0.66).
+  The population-weighted Gini runs lower every season (2025: 0.58 vs. 0.74 raw), showing
+  part of the raw concentration is just population, not risk.
 - [`provinces_with_significant_excess_rate.sql`](analyses/provinces_with_significant_excess_rate.sql) —
   rate ratio vs. the rest of the country with a 95% log-Poisson CI, to separate a real
   excess from a small-population fluke. Uses province-level population so CABA (whose

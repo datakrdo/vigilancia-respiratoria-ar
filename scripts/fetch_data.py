@@ -1,13 +1,12 @@
-"""Download the raw Dengue, respiratory (IRA) and RENAPER files and (optionally) sync them to the
+"""Download the raw respiratory (IRA) and RENAPER files and (optionally) sync them to the
 Unity Catalog Volume that `read_files()` reads from.
 
     uv run --group ingest python scripts/fetch_data.py                 # download only
     uv run --group ingest python scripts/fetch_data.py --upload /Volumes/workspace/bronze/raw_data
 
 Layout written under --out (mirrors the Volume):
-    dengue_zika/legacy/    2018-2022 files; .xls/.xlsx also get a `.converted.csv`
-    dengue_zika/current/   2023+ files (`-se-1-` in the name)
-    respiratory/           acute respiratory infections (IRA), rolling-window files
+    respiratory/           acute respiratory infections (IRA), rolling-window files;
+                           .xls/.xlsx also get a `.converted.csv`
     renaper_population/    department-level cuts
 
 Only files whose name or size differ from what is already in the Volume are uploaded,
@@ -36,12 +35,9 @@ HERE = Path(__file__).resolve().parent
 # trust store: verification stays on.
 SALUD_CA = HERE / "certs" / "sectigo_dv_r36.pem"
 SALUD_API = "https://datos.salud.gob.ar/api/3/action/package_show?id="
-# Two SNVS 2.0 datasets with the same export layout: (CKAN package id, folder in the Volume)
-SALUD_PACKAGES = [
-    ("vigilancia-de-dengue-y-zika", "dengue_zika"),
-    ("vigilancia-de-infecciones-respiratorias-agudas", "respiratory"),
-]
-# The respiratory dataset also lists a data dictionary, a mislabeled Dengue sheet and three
+# SNVS 2.0 dataset: CKAN package id
+SALUD_PACKAGE = "vigilancia-de-infecciones-respiratorias-agudas"
+# The respiratory dataset also lists a data dictionary, a sheet of an unrelated event and three
 # snapshots cut at Excel's 65,535-row limit (2018, 2019 and 2022-09: each later superseded
 # by a complete file). Keep only the complete ones.
 RESPIRATORY_FILE = re.compile(
@@ -103,17 +99,10 @@ def _to_csv(path: Path) -> Path:
 
 def download(out: Path) -> list[Path]:
     targets: list[tuple[Path, str]] = []
-    for package, folder in SALUD_PACKAGES:
-        for url in _resources(SALUD_API + package):
-            name = _name(url)
-            if not name.lower().endswith((".csv", ".xls", ".xlsx")):
-                continue
-            if folder == "respiratory":
-                if RESPIRATORY_FILE.match(name):
-                    targets.append((out / folder / name, url))
-                continue
-            era = "current" if "-se-1-" in name else "legacy"
-            targets.append((out / folder / era / name, url))
+    for url in _resources(SALUD_API + SALUD_PACKAGE):
+        name = _name(url)
+        if name.lower().endswith((".csv", ".xls", ".xlsx")) and RESPIRATORY_FILE.match(name):
+            targets.append((out / "respiratory" / name, url))
     for url in _resources(RENAPER_PACKAGE):
         if RENAPER_FILE.search(url):
             targets.append((out / "renaper_population" / _name(url), url))

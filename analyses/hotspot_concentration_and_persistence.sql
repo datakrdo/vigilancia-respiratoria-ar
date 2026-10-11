@@ -16,7 +16,7 @@
 -- RENAPER only publishes CABA citywide, see `mart_incidence_rates`) can't
 -- get a rate and are excluded from the rate-based columns only; the raw
 -- Pareto/Gini columns are unaffected.
--- Finding: ETI is concentrated but much less than Dengue: 17-28% of departments account
+-- Finding: ETI is concentrated: 17-28% of departments account
 -- for 80% of a season's cases and the raw Gini is 0.70-0.80 (2025: 0.74). Hotspots are
 -- partly persistent: the top-decile overlap with the previous season is 0.45-0.66
 -- (Jaccard), so roughly half of the hot departments repeat. The population-weighted index

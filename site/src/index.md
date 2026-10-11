@@ -5,25 +5,28 @@ sql:
   corridor: ./data/corridor.parquet
 ---
 
-# Infecciones respiratorias y Dengue en Argentina: dónde está el riesgo, no solo dónde hay más casos
+# Infecciones respiratorias en Argentina: dónde está el riesgo, no solo dónde hay más casos
 
 <p class="lede">Casos notificados al SNVS 2.0 por departamento de residencia, con la tasa cada 100.000 habitantes. Una provincia grande siempre suma más casos; la tasa y el <a href="./corredor">corredor endémico</a> dicen si la situación es realmente anormal.</p>
 
 ```js
-import {alert, rateRamp, fmt} from "./components/theme.js";
+import {t} from "./components/i18n.js";
+import {rateMap, rateBars} from "./components/charts.js";
+const L = t("es");
+const {fmt} = L;
 const events = [...await sql`select distinct event_code, event_name from departments order by 2`];
 const yearInfo = [...await sql`select year, cast(max(last_epi_week) as int) as wk from departments where case_count > 0 group by year order by year desc`];
 const years = yearInfo.map((d) => d.year);
 const partial = new Map(yearInfo.filter((d) => d.wk < 52).map((d) => [d.year, d.wk]));
-const yearLabel = (y) => (partial.has(y) ? `${y} · parcial` : String(y));
+const yearLabel = (y) => (partial.has(y) ? L.partial(y) : String(y));
 const defaultYear = yearInfo[0].year;
 ```
 
 <div class="controls">
 
 ```js
-const event = view(Inputs.radio(events, {label: "Evento", format: (d) => d.event_name, value: events.find((d) => d.event_code === "ETI") ?? events[0]}));
-const year = view(Inputs.radio(years, {label: "Año", format: yearLabel, value: defaultYear}));
+const event = view(Inputs.radio(events, {label: L.event, format: L.eventName, value: events.find((d) => d.event_code === "ETI") ?? events[0]}));
+const year = view(Inputs.radio(years, {label: L.year, format: yearLabel, value: defaultYear}));
 ```
 
 </div>
@@ -76,41 +79,17 @@ const delta = (c, label) => c ? html`<div class="kpi"><div class="n">${c.pct > 0
 El tamaño del círculo es la cantidad de casos; el color, la tasa cada 100.000 habitantes. Los círculos grises no tienen población de referencia (las comunas de CABA solo se publican como ciudad completa).
 
 ```js
-display(Plot.plot({
-  width: Math.min(width, 640),
-  height: 840,
-  projection: {type: "mercator", domain: provinces, inset: 12},
-  r: {range: [1.5, 24]},
-  color: {type: "sqrt", range: rateRamp(dark), unknown: "#8d8c86", legend: true, label: "Casos cada 100.000 hab."},
-  marks: [
-    Plot.geo(provinces, {fill: "var(--land)", stroke: "var(--line)"}),
-    Plot.dot(depts, {
-      x: "centroid_lon", y: "centroid_lat", r: "case_count", fill: "rate_per_100k",
-      fillOpacity: 0.8, stroke: "var(--surface)", strokeWidth: 0.6, sort: {channel: "-r"},
-      channels: {Departamento: "department_name", Provincia: "province_name"},
-      tip: {format: {r: (d) => `${fmt(d)} casos`, fill: (d) => d == null || Number.isNaN(d) ? "sin población de referencia" : `${fmt(d, 1)} cada 100.000`, x: false, y: false}}
-    })
-  ]
-}));
+display(rateMap({depts, provinces, L, dark, width}));
 ```
 
 ## Tasa por provincia
 
-${total === 0 ? html`<p class="fineprint"><b>No se notificaron casos de ${event.event_name} en ${year}.</b> Elegí otro evento o año.</p>` : ""}
+${total === 0 ? html`<p class="fineprint"><b>No se notificaron casos de ${L.eventName(event)} en ${year}.</b> Elegí otro evento o año.</p>` : ""}
 
 ```js
-display(Plot.plot({
-  marginLeft: 150,
-  height: 24 * prov.length + 40,
-  x: {label: "Casos cada 100.000 habitantes", grid: true},
-  y: {label: null, domain: prov.map((d) => d.province_name)},
-  marks: [
-    Plot.barX(prov, {y: "province_name", x: "rate", fill: "var(--accent)", fillOpacity: (d) => (d.cases < 20 ? 0.35 : 1), tip: {format: {x: (d) => fmt(d, 1)}}}),
-    Plot.ruleX([0])
-  ]
-}));
+display(rateBars({prov, L}));
 ```
 
-${["2020", "2021"].includes(String(year)) && event.event_code !== "DENGUE" ? html`<p class="fineprint"><b>Ojo con ${year}:</b> buena parte de los cuadros respiratorios se notificó como sospecha de COVID-19, un evento que no está en este dataset. Los casos de ${event.event_name} aparecen subestimados.</p>` : ""}
+${["2020", "2021"].includes(String(year)) ? html`<p class="fineprint"><b>Ojo con ${year}:</b> buena parte de los cuadros respiratorios se notificó como sospecha de COVID-19, un evento que no está en este dataset. Los casos de ${L.eventName(event)} aparecen subestimados.</p>` : ""}
 
 <p class="fineprint">Los comparativos usan la última semana consolidada: se descartan las dos últimas del año en curso porque siempre están incompletas. Las barras claras son provincias con menos de 20 casos: con tan pocos casos la tasa es inestable y no conviene compararla. Las notificaciones se corrigen con el tiempo: las semanas más recientes suelen estar subestimadas (ver <a href="./hallazgos#retraso-de-notificacion">retraso de notificación</a>). Datos por residencia del caso, no por lugar de contagio. Las tasas dependen también de cuánto notifica cada jurisdicción: Santa Fe y CABA notifican muy poca ETI al SNVS 2.0 (Santa Fe, 52 casos cada 100.000 en 2025 contra 3.379 en Córdoba), así que sus tasas bajas no indican menos enfermedad.</p>

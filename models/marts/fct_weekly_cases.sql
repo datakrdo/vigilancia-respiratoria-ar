@@ -19,7 +19,7 @@
 -- each run instead of rebuilding the full grid every time.
 --
 -- The grid only pairs each event with the age groups it is actually reported in
--- (Dengue and the respiratory events use different age bands), so the densified zeros
+-- (different events can use different age bands), so the densified zeros
 -- never include an age band the source does not have for that event.
 
 with source_agg as (

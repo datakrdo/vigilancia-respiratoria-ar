@@ -4,8 +4,7 @@
   )
 }}
 
--- Acute respiratory infections (IRA, SNVS 2.0) from the same portal and export layout
--- as Dengue, but published as rolling windows: every file covers one to three years and
+-- Acute respiratory infections (IRA, SNVS 2.0) from the SNVS 2.0 portal, published as rolling windows: every file covers one to three years and
 -- the next one re-publishes the overlap (see docs/data_profile.md). Revisions are kept
 -- 1:1 here; `int_snvs_unified` picks the latest per year.
 --

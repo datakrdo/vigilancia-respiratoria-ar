@@ -6,8 +6,7 @@ title: Metodología
 
 ## De dónde salen los números
 
-- **Casos:** dos datasets del SNVS 2.0, Ministerio de Salud de la Nación, licencia CC-BY 4.0: [Vigilancia de infecciones respiratorias agudas](https://datos.salud.gob.ar/dataset/vigilancia-de-infecciones-respiratorias-agudas) (enfermedad tipo influenza, bronquiolitis en menores de 2 años y neumonía) y [Vigilancia de Dengue](https://datos.salud.gob.ar/dataset/vigilancia-de-dengue-y-zika). Los archivos se publican en ventanas que se superponen y algunos años se republicaron varias veces con cifras distintas: para cada año se usa la última publicación.
-- **Zika y Dengue durante la gestación** no se modelan: Zika tuvo 37 casos en 2018 y ninguno desde entonces, y la gestación tiene muy pocos casos para sacar conclusiones.
+- **Casos:** dataset del SNVS 2.0, Ministerio de Salud de la Nación, licencia CC-BY 4.0: [Vigilancia de infecciones respiratorias agudas](https://datos.salud.gob.ar/dataset/vigilancia-de-infecciones-respiratorias-agudas) (enfermedad tipo influenza, bronquiolitis en menores de 2 años y neumonía). Los archivos se publican en ventanas que se superponen y algunos años se republicaron varias veces con cifras distintas: para cada año se usa la última publicación.
 - **Población:** [Estructura de población identificada](https://datos.gob.ar/dataset/renaper-estructura-poblacion-argentina), RENAPER, CC-BY 4.0. Es población con DNI, no una proyección del INDEC.
 - **Geografía:** códigos de departamento y provincia de [Georef](https://datosgobar.github.io/georef-ar-api/). Contornos provinciales de [Natural Earth](https://www.naturalearthdata.com/) (dominio público).
 - **Actualización:** una vez por semana se busca si hay archivos nuevos o modificados; si no los hay, el sitio no se reconstruye.

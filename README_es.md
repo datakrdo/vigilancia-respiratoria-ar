@@ -4,16 +4,15 @@
 
 Analytics engineering sobre vigilancia epidemiológica en Argentina (SNVS 2.0, Ministerio de
 Salud): infecciones respiratorias agudas (enfermedad tipo influenza, bronquiolitis, neumonía;
-unas 1,3 M de notificaciones por año) y Dengue, con **dbt-databricks** sobre Databricks Free Edition
+unas 1,3 M de notificaciones por año), con **dbt-databricks** sobre Databricks Free Edition
 (Unity Catalog, SQL warehouse serverless). Pensado para equipos de salud pública: la capa SQL alimenta un sitio público y datos que se actualizan solos cada semana.
 
-Fuentes: [infecciones respiratorias](https://datos.salud.gob.ar/dataset/vigilancia-de-infecciones-respiratorias-agudas) y
-[Dengue](https://datos.salud.gob.ar/dataset/vigilancia-de-dengue-y-zika) (CC-BY 4.0). Perfil completo de los datos, "eras" de esquema, publicaciones superpuestas y problemas
+Fuentes: [infecciones respiratorias](https://datos.salud.gob.ar/dataset/vigilancia-de-infecciones-respiratorias-agudas) (CC-BY 4.0). Perfil completo de los datos, publicaciones superpuestas y problemas
 de calidad encontrados: [`docs/data_profile.md`](docs/data_profile.md).
 
 ## Para verlo 👀
 
-- **[Sitio público](https://datakrdo.github.io/vigilancia-respiratoria-ar/)** (Observable Framework): casos y tasa por departamento, corredor endémico interactivo por provincia, brotes y los seis hallazgos de abajo en lenguaje llano.
+- **[Sitio público](https://datakrdo.github.io/vigilancia-respiratoria-ar/)** (Observable Framework, en español e inglés): casos y tasa por departamento, corredor endémico interactivo por provincia, brotes y los seis hallazgos de abajo en lenguaje llano.
 - **[Documentación dbt](https://datakrdo.github.io/vigilancia-respiratoria-ar/dbt/)**: linaje completo, columnas y tests.
 
 Ambos sitios se reconstruyen solos cuando la fuente publica datos nuevos (ver *Actualización automática*).
@@ -33,8 +32,6 @@ Ambos sitios se reconstruyen solos cuando la fuente publica datos nuevos (ver *A
 ```
 seeds/                  georef_departments, age_group_buckets, event_map (crosswalks)
 sources (Volume CSVs) ──read_files()──► staging/
-  stg_dengue_zika__legacy       (2018-2022, XLS/CSV, esquema viejo)
-  stg_dengue_zika__current      (2023+, esquema nuevo)
   stg_respiratory               (IRA 2018+, publicaciones en ventanas superpuestas)
   stg_renaper_population        (población identificada RENAPER por departamento)
         │
@@ -92,7 +89,7 @@ secrets `DATABRICKS_HOST`, `DATABRICKS_HTTP_PATH` y `DATABRICKS_TOKEN`.
 ## Hallazgos (`analyses/`) 🔍
 
 - [`season_timing_and_severity.sql`](analyses/season_timing_and_severity.sql) —
-  por provincia y temporada de Dengue (SE 31 → SE 30), la semana en la que se alcanza
+  por provincia y temporada, la semana en la que se alcanza
   el 50%/90% de los casos de esa temporada y el exceso total sobre el techo p75 del
   corredor endémico, rankeado por exceso **cada 100 mil habitantes** para que una
   provincia grande no encabece la lista solo por tamaño. En 2023-24, Tucumán (4.464
@@ -111,10 +108,10 @@ secrets `DATABRICKS_HOST`, `DATABRICKS_HTTP_PATH` y `DATABRICKS_TOKEN`.
   concentración de casos por departamento (Pareto/Gini), un Gini ponderado por
   población (curva de Lorenz por tasa, no por casos crudos) para separar concentración
   de riesgo de dónde vive la gente, y superposición Jaccard del decil superior por tasa
-  entre temporadas consecutivas. El Dengue está muy concentrado por casos crudos
-  (Gini 0,85-0,98) pero *no* es persistente (Jaccard 0,0-0,14) — los focos se mueven. El
-  Gini ponderado por población es más bajo todas las temporadas (ej. 2023-24: 0,85 crudo
-  vs. 0,57 ponderado), lo que muestra que parte de la concentración cruda es solo
+  entre temporadas consecutivas. La ETI está concentrada (17-28% de los departamentos reúnen el 80% de los casos de una
+  temporada, Gini crudo 0,70-0,80) y es parcialmente persistente (Jaccard del decil
+  superior 0,45-0,66). El Gini ponderado por población es más bajo todas las temporadas
+  (2025: 0,58 contra 0,74 crudo), lo que muestra que parte de la concentración cruda es solo
   población, no riesgo.
 - [`provinces_with_significant_excess_rate.sql`](analyses/provinces_with_significant_excess_rate.sql) —
   rate ratio contra el resto del país con IC 95% log-Poisson, para separar un exceso

@@ -8,7 +8,12 @@ on:
   # weekly; the job only rebuilds when scripts/fetch_data.py finds a new or changed file.
   schedule:
     - cron: "0 9 * * 1"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      full_refresh:
+        description: Rebuild the incremental models from scratch (dbt build --full-refresh)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -115,7 +120,7 @@ jobs:
         if: steps.gate.outputs.refreshed == 'true'
         run: |
           uv run dbt deps
-          uv run dbt build --target ci
+          uv run dbt build --target ci ${{ inputs.full_refresh && '--full-refresh' || '' }}
           uv run dbt docs generate --target ci --static
 
       - name: Upload dbt docs

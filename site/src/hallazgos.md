@@ -14,7 +14,10 @@ sql:
 <p class="lede">Cada hallazgo parte de una pregunta concreta de vigilancia, está calculado en SQL sobre las mismas tablas que alimentan el resto del sitio, y termina en qué conviene hacer con la respuesta. Algunos resultados son negativos, y por eso útiles.</p>
 
 ```js
-import {alert, fmt} from "./components/theme.js";
+import {t} from "./components/i18n.js";
+import {excessChart, peakChart, hotspotChart, ratioChart, nowcastChart} from "./components/charts.js";
+const L = t("es");
+const {fmt} = L;
 const num = (rows) => rows.map((d) => Object.fromEntries(Object.entries(d).map(([k, v]) => [k, typeof v === "bigint" ? Number(v) : v])));
 ```
 
@@ -29,21 +32,12 @@ const num = (rows) => rows.map((d) => Object.fromEntries(Object.entries(d).map((
 ```js
 const timing = num([...await sql`select * from timing order by season_start_year desc, total_excess_per_100k desc`]);
 const seasons = [...new Set(timing.map((d) => d.season_label))];
-const season = view(Inputs.radio(seasons, {label: "Temporada", value: seasons[0]}));
+const season = view(Inputs.radio(seasons, {label: L.season, value: seasons[0]}));
 ```
 
 ```js
-const t = timing.filter((d) => d.season_label === season);
-display(Plot.plot({
-  marginLeft: 130, height: 40 * t.length + 40,
-  x: {label: "Casos en exceso sobre el percentil 75, cada 100.000 hab.", grid: true},
-  y: {label: null, domain: t.map((d) => d.province_name)},
-  marks: [
-    Plot.barX(t, {y: "province_name", x: "total_excess_per_100k", fill: "var(--accent)",
-      title: (d) => `${d.province_name}\nExceso: ${fmt(d.total_excess_cases_over_corridor)} casos (${fmt(d.total_excess_per_100k)} cada 100.000)\nLlegó al 50% de los casos en la semana ${d.epi_week_reaching_50pct} y al 90% en la semana ${d.epi_week_reaching_90pct}`, tip: true}),
-    Plot.ruleX([0])
-  ]
-}));
+const tm = timing.filter((d) => d.season_label === season);
+display(excessChart({t: tm, L}));
 ```
 
 <div class="finding" id="gradiente-norte-sur">
@@ -57,7 +51,7 @@ display(Plot.plot({
 ```js
 const spread = num([...await sql`select * from spread order by season_start_year desc, province_lat desc`]);
 const spSeasons = [...new Set(spread.map((d) => d.season_label))];
-const spSeason = view(Inputs.radio(spSeasons, {label: "Temporada", value: spSeasons[0]}));
+const spSeason = view(Inputs.radio(spSeasons, {label: L.season, value: spSeasons[0]}));
 ```
 
 ```js
@@ -73,17 +67,7 @@ const spNear = sp.filter((d) => Math.abs(d.peak_epi_week - spMedian) <= 3).lengt
 </div>
 
 ```js
-display(Plot.plot({
-  marginLeft: 130, height: 22 * sp.length + 60,
-  x: {label: "Semana epidemiológica del pico de casos", grid: true, domain: [1, 52]},
-  y: {label: null, domain: sp.map((d) => d.province_name)},
-  marks: [
-    Plot.rectX([{a: spMedian - 3, b: spMedian + 3}], {x1: "a", x2: "b", fill: "var(--accent)", fillOpacity: 0.12}),
-    Plot.ruleX([spMedian], {stroke: "var(--accent)"}),
-    Plot.dot(sp, {x: "peak_epi_week", y: "province_name", fill: "var(--accent)", r: 4,
-      title: (d) => `${d.province_name}\nPico en la semana ${d.peak_epi_week}`, tip: true})
-  ]
-}));
+display(peakChart({sp, median: spMedian, L}));
 ```
 
 <p class="fineprint">Provincias ordenadas de norte a sur. La banda marca la mediana ± 3 semanas. Si la temporada bajara desde el norte, los puntos formarían una diagonal; no la forman. El pico es la semana con más casos de la provincia en la temporada.</p>
@@ -117,21 +101,7 @@ const w = num([...await sql`select * from warning`])[0] ?? {};
 
 ```js
 const hot = num([...await sql`select * from hotspots order by season_start_year`]);
-display(Plot.plot({
-  height: 300, marginBottom: 50,
-  x: {label: "Temporada", tickRotate: -20, domain: hot.map((d) => d.season_label)},
-  y: {label: "Índice (0 a 1)", domain: [0, 1], grid: true},
-  color: {legend: true, domain: ["Gini de casos", "Gini ponderado por población", "Superposición con la temporada previa (Jaccard)"], range: ["#2a78d6", "#eb6834", "#1baf7a"]},
-  marks: [
-    Plot.line(hot, {x: "season_label", y: "gini_coefficient", stroke: () => "Gini de casos", strokeWidth: 2}),
-    Plot.line(hot, {x: "season_label", y: "population_weighted_gini_coefficient", stroke: () => "Gini ponderado por población", strokeWidth: 2}),
-    Plot.line(hot.filter((d) => d.jaccard_similarity_to_prior_season != null), {x: "season_label", y: "jaccard_similarity_to_prior_season", stroke: () => "Superposición con la temporada previa (Jaccard)", strokeWidth: 2}),
-    Plot.dot(hot, {x: "season_label", y: "gini_coefficient", fill: "#2a78d6"}),
-    Plot.dot(hot, {x: "season_label", y: "population_weighted_gini_coefficient", fill: "#eb6834"}),
-    Plot.dot(hot.filter((d) => d.jaccard_similarity_to_prior_season != null), {x: "season_label", y: "jaccard_similarity_to_prior_season", fill: "#1baf7a"}),
-    Plot.ruleY([0])
-  ]
-}));
+display(hotspotChart({hot, L}));
 ```
 
 <p class="fineprint">El Gini ponderado es menor que el de casos: parte de la concentración aparente es solo dónde vive la gente, no mayor riesgo.</p>
@@ -146,18 +116,7 @@ display(Plot.plot({
 
 ```js
 const prov = num([...await sql`select * from provinces order by rate_ratio_vs_rest_of_country desc`]);
-display(Plot.plot({
-  marginLeft: 150, height: 26 * prov.length + 50,
-  x: {type: "log", label: "Razón de tasas vs. el resto del país (escala logarítmica)", grid: true, ticks: [0.25, 0.5, 1, 2, 4, 8, 16, 32], tickFormat: (d) => `×${d}`},
-  y: {label: null, domain: prov.map((d) => d.province_name)},
-  color: {domain: [true, false], range: [alert(dark), "#8d8c86"]},
-  marks: [
-    Plot.ruleX([1], {stroke: "var(--ink)"}),
-    Plot.ruleY(prov, {y: "province_name", x1: "ci95_low", x2: "ci95_high", stroke: "is_materially_elevated", strokeWidth: 2}),
-    Plot.dot(prov, {y: "province_name", x: "rate_ratio_vs_rest_of_country", fill: "is_materially_elevated", r: 4,
-      title: (d) => `${d.province_name}\nRazón de tasas ${fmt(d.rate_ratio_vs_rest_of_country, 2)} (IC 95%: ${fmt(d.ci95_low, 2)}–${fmt(d.ci95_high, 2)})\n${fmt(d.province_rate_per_100k, 1)} casos cada 100.000`, tip: true})
-  ]
-}));
+display(ratioChart({prov, L, dark}));
 ```
 
 <p class="fineprint">Rojo: exceso significativo y de al menos ×1,5. Gris: no cumple las dos condiciones. Las diferencias de tasa también reflejan cuánto notifica cada jurisdicción.</p>
@@ -173,19 +132,7 @@ display(Plot.plot({
 ```js
 const nc = num([...await sql`select * from nowcast order by avg_reporting_lag_days`])
   .map((d) => ({...d, known: 100 / d.median_correction_factor, known_p90: 100 / d.p90_correction_factor}));
-display(Plot.plot({
-  height: 300, marginRight: 30,
-  x: {type: "log", label: "Días entre el fin de la semana y la primera publicación", ticks: nc.map((d) => d.avg_reporting_lag_days), tickFormat: (d) => `${d} d`},
-  y: {label: "% del valor final ya conocido", domain: [0, 100], grid: true},
-  marks: [
-    Plot.areaY(nc, {x: "avg_reporting_lag_days", y1: "known_p90", y2: "known", fill: "var(--accent)", fillOpacity: 0.2}),
-    Plot.line(nc, {x: "avg_reporting_lag_days", y: "known", stroke: "var(--accent)", strokeWidth: 2}),
-    Plot.dot(nc, {x: "avg_reporting_lag_days", y: "known", fill: "var(--accent)", r: 4,
-      title: (d) => `${d.reporting_lag_bucket}: ${fmt(d.n_periods)} períodos revisados\nMediana: se conoce el ${fmt(d.known, 0)}% del final (×${d.median_correction_factor})\nPercentil 90: solo el ${fmt(d.known_p90, 0)}% (×${d.p90_correction_factor})`, tip: true}),
-    Plot.text(nc, {x: "avg_reporting_lag_days", y: "known", text: (d) => `${fmt(d.known, 0)}%`, dy: -12, fontWeight: "bold"}),
-    Plot.ruleY([100])
-  ]
-}));
+display(nowcastChart({nc, L}));
 ```
 
 <p class="fineprint">Línea: mediana. Banda: hasta el caso desfavorable (percentil 90). Solo cuenta períodos que después se revisaron, así que exagera la corrección de una semana típica. La demora de 0 a 7 días tiene pocos períodos (826).</p>

@@ -1,5 +1,5 @@
 -- Question: for each respiratory season (epi week `finding_season_start_week` through the
--- end of the cycle; calendar year for ETI, week 31 -> 30 for Dengue) and province, how
+-- end of the cycle; calendar year for ETI) and province, how
 -- early does the season build up -- the epi week where it hits 50%/90% of its own final
 -- case count -- and how far over the endemic corridor's alert ceiling (p75) did it run?
 -- Seasonal staffing and vaccination campaigns have to land *before* the 50% week.
