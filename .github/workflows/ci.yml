@@ -7,7 +7,7 @@ on:
   # The source publishes irregularly (anywhere from a week to months apart), so check
   # weekly; the job only rebuilds when scripts/fetch_data.py finds a new or changed file.
   schedule:
-    - cron: "0 9 * * 1"
+    - cron: "17 9 * * 1"
   workflow_dispatch:
     inputs:
       full_refresh:

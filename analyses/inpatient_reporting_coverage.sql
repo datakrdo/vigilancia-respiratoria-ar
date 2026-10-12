@@ -6,8 +6,8 @@
 -- Finding: bronchiolitis carries the split nationally in 2020-2022 (22-24 provinces
 -- report inpatients) and pneumonia only in 2022; from 2023 on a single province (Salta)
 -- reports inpatients at all, and the rest file everything as outpatient or "Sin
--- especificar". The national inpatient share collapses from 11.5% (bronchiolitis, 2021)
--- to 0.7% (2023 on) for that reason, not because severity dropped. An inpatient share by
+-- especificar". The national inpatient share collapses from 8.4% (bronchiolitis, 2021)
+-- to 0.3-0.5% (bronchiolitis) and 0.6-1.2% (pneumonia) from 2023 on, for that reason, not because severity dropped. An inpatient share by
 -- province for recent seasons would measure reporting practice, so none is published.
 
 with by_event_year as (

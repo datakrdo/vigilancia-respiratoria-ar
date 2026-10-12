@@ -133,7 +133,7 @@ models:
 
   - name: dim_date
     description: >
-      Calendar table at day grain (one row per day, no gaps) for Power BI time intelligence,
+      Calendar table at day grain (one row per day, no gaps),
       with the epidemiological week each day belongs to. Where `dim_epi_week`'s extra week 53
       overlaps the next year's week 1, the later year wins.
     config:
