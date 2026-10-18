@@ -10,83 +10,7 @@ unas 1,3 M de notificaciones por año), con **dbt-databricks** sobre Databricks 
 Fuentes: [infecciones respiratorias](https://datos.salud.gob.ar/dataset/vigilancia-de-infecciones-respiratorias-agudas) (CC-BY 4.0). Perfil completo de los datos, publicaciones superpuestas y problemas
 de calidad encontrados: [`docs/data_profile.md`](docs/data_profile.md).
 
-## Para verlo 👀
-
-- **[Sitio público](https://datakrdo.github.io/vigilancia-respiratoria-ar/)** (Observable Framework, en español e inglés): casos y tasa por departamento, corredor endémico interactivo por provincia, brotes y los seis hallazgos de abajo en lenguaje llano.
-- **[Documentación dbt](https://datakrdo.github.io/vigilancia-respiratoria-ar/dbt/)**: linaje completo, columnas y tests.
-
-Ambos sitios se reconstruyen solos cuando la fuente publica datos nuevos (ver *Actualización automática*).
-
-## Leer antes de usar los números ⚠️
-
-- Los casos se asignan al departamento de **residencia**, no al lugar donde ocurrió el contagio.
-- Las últimas semanas están **incompletas** (notificación tardía); ver el hallazgo de nowcast.
-- La población de CABA solo se publica por ciudad, así que sus comunas no tienen tasa.
-- La notificación es despareja entre jurisdicciones: Santa Fe informa 52 casos de ETI cada 100.000 en 2025 (322 en 2019), CABA 240 (815 en 2019), Córdoba 3.379. Una tasa baja puede ser poca notificación y no poca enfermedad.
-- El año en curso es parcial, y 2020-2021 (COVID) distorsionan la base de 5 años del corredor endémico de los años siguientes.
-- Las tasas con menos de 20 casos son inestables; el sitio las muestra atenuadas.
-- El sitio público muestra solo agregados por departamento o provincia, nunca por edad (conteos chicos podrían identificar personas).
-
-## Arquitectura (medallion) 🏗️
-
-```
-seeds/                  georef_departments, age_group_buckets, event_map (crosswalks)
-sources (Volume CSVs) ──read_files()──► staging/
-  stg_respiratory               (IRA 2018+, publicaciones en ventanas superpuestas)
-  stg_renaper_population        (población identificada RENAPER por departamento)
-        │
-        ▼
-intermediate/
-  int_snvs_all_revisions  toda publicación de cada período, incremental por archivo de origen (grano de mart_revisions)
-  int_snvs_unified        una fila canónica por período (última revisión)
-  int_renaper_population
-        │
-        ▼
-snapshots/
-  snap_snvs_weekly        SCD2 semanal sobre int_snvs_weekly_by_event
-        │
-        ▼
-marts/
-  dim_geography, dim_province, dim_age_group, dim_event, dim_epi_week, dim_date
-  fct_weekly_cases        evento x depto x grupo etario x semana epi x año (densificado)
-  mart_incidence_rates    tasas por 100k, acumulado anual, comparación interanual
-  mart_endemic_corridor   corredor endémico (percentiles 25/50/75 de los 5 años previos)
-  mart_outbreaks          episodios de brote (gaps & islands sobre el corredor)
-  mart_care_setting       apertura ambulatorio / internado de eventos respiratorios (solo informada a nivel nacional en 2020-2022)
-  mart_revisions          cuánto cambia un dato ya publicado en revisiones sucesivas
-```
-
-Todos los marts (`dim_*`, `fct_*`, `mart_*`) tienen `contract: enforced: true`.
-
-## Cómo correrlo 🚀
-
-```bash
-uv sync --group ingest
-cp profiles.yml.example ~/.dbt/profiles.yml   # completar host/http_path, login con `databricks auth login`
-uv run python scripts/fetch_data.py --upload /Volumes/workspace/bronze/raw_data   # descarga + sincroniza el Volume
-dbt deps
-dbt build        # modelos, seeds, snapshot, tests y unit tests
-```
-
-La ruta del Volume es la var `raw_volume_path` de `dbt_project.yml`.
-
-Lint (dialecto Databricks, plantilla dbt):
-
-```bash
-sqlfluff lint models/ analyses/ tests/
-```
-
-## Actualización automática 🔄
-
-La fuente publica de forma irregular (entre una semana y varios meses), así que el CI
-(`.github/workflows/ci.yml`) revisa **todos los lunes**: `scripts/fetch_data.py`
-descarga los archivos, sube al Volume solo los nuevos o modificados y recién entonces corre
-`dbt build` (que también registra revisiones en el snapshot). La carga es incremental: `int_snvs_all_revisions` solo resuelve los archivos nuevos o reemplazados desde la última corrida (`dbt build --full-refresh` reconstruye todo), regenera la documentación de dbt
-y vuelve a desplegar el sitio en GitHub Pages. Sin novedades no se reconstruye nada. En pull
-requests corre `sqlfluff lint` y `dbt parse` con un perfil ficticio (sin secrets). Requiere los
-secrets `DATABRICKS_HOST`, `DATABRICKS_HTTP_PATH` y `DATABRICKS_TOKEN`.
-
-## Hallazgos (`analyses/`) 🔍
+## Resultados 📊
 
 - [`season_timing_and_severity.sql`](analyses/season_timing_and_severity.sql) —
   por provincia y temporada, la semana en la que se alcanza
@@ -132,7 +56,101 @@ secrets `DATABRICKS_HOST`, `DATABRICKS_HTTP_PATH` y `DATABRICKS_TOKEN`.
   provincias. No sirve: desde 2023 solo Salta informa internados, así que no se publica
   una proporción de internados.
 
-## Datos y licencias
+## Demo en vivo 🌐
+
+- **[Sitio público](https://datakrdo.github.io/vigilancia-respiratoria-ar/)** (Observable Framework, en español e inglés): casos y tasa por departamento, corredor endémico interactivo por provincia, brotes y los seis hallazgos de abajo en lenguaje llano.
+- **[Documentación dbt](https://datakrdo.github.io/vigilancia-respiratoria-ar/dbt/)**: linaje completo, columnas y tests.
+
+Ambos sitios se reconstruyen solos cuando la fuente publica datos nuevos (ver *Actualización automática*).
+
+## Cómo funciona 🏗️
+
+```
+seeds/                  georef_departments, age_group_buckets, event_map (crosswalks)
+sources (Volume CSVs) ──read_files()──► staging/
+  stg_respiratory               (IRA 2018+, publicaciones en ventanas superpuestas)
+  stg_renaper_population        (población identificada RENAPER por departamento)
+        │
+        ▼
+intermediate/
+  int_snvs_all_revisions  toda publicación de cada período, incremental por archivo de origen (grano de mart_revisions)
+  int_snvs_unified        una fila canónica por período (última revisión)
+  int_renaper_population
+        │
+        ▼
+snapshots/
+  snap_snvs_weekly        SCD2 semanal sobre int_snvs_weekly_by_event
+        │
+        ▼
+marts/
+  dim_geography, dim_province, dim_age_group, dim_event, dim_epi_week, dim_date
+  fct_weekly_cases        evento x depto x grupo etario x semana epi x año (densificado)
+  mart_incidence_rates    tasas por 100k, acumulado anual, comparación interanual
+  mart_endemic_corridor   corredor endémico (percentiles 25/50/75 de los 5 años previos)
+  mart_outbreaks          episodios de brote (gaps & islands sobre el corredor)
+  mart_care_setting       apertura ambulatorio / internado de eventos respiratorios (solo informada a nivel nacional en 2020-2022)
+  mart_revisions          cuánto cambia un dato ya publicado en revisiones sucesivas
+```
+
+Todos los marts (`dim_*`, `fct_*`, `mart_*`) tienen `contract: enforced: true`.
+
+## Herramientas 🛠️
+
+- SQL (dialecto Databricks), dbt-databricks sobre Databricks Free Edition (Unity Catalog, Volumes, SQL warehouse serverless) y la CLI de Databricks
+- Funciones de dbt: modelos incrementales, snapshots (SCD2), contratos de modelo obligatorios, unit tests, tests singulares, exposures y docs generadas
+- sqlfluff (templater de dbt) y pre-commit
+- Python 3.14, pandas, openpyxl y xlrd (descarga y conversión de Excel), pyarrow y databricks-sql-connector (exportación a Parquet para el sitio)
+- Observable Framework (Node 20.6+) para el sitio público bilingüe
+- uv, GitHub Actions (revisión semanal de la fuente, lint en los pull requests) y GitHub Pages
+
+## Habilidades 🧠
+
+- Modelado medallion en dbt (staging, intermediate, snapshots, marts) con contratos obligatorios en cada mart, unit tests y tests singulares sobre el calendario de semanas epidemiológicas, el desvío de codificación y la frescura de la fuente
+- Cargas incrementales sobre entregas de ventana móvil que se superponen, conservando cada revisión para medir cuánto cambian después las cifras ya publicadas
+- Indicadores epidemiológicos en SQL: tasas por 100 mil, corredores endémicos con percentiles de los cinco años previos, episodios de brote con gaps and islands, factores de corrección de nowcast, razones de tasas log-Poisson y concentración con Gini/Lorenz
+- Perfilado de datos y reporte honesto de lo que los datos no pueden decir: notificación desigual, últimas semanas incompletas y conteos chicos inestables
+- Publicación que cuida la privacidad: solo agregados, nunca cortes por edad que los conteos chicos podrían volver identificables
+- Un pipeline que se actualiza solo: el CI revisa la fuente cada semana, reconstruye solo si hay datos nuevos y vuelve a publicar las docs de dbt y el sitio público
+
+## Inicio rápido 🚀
+
+```bash
+uv sync --group ingest
+cp profiles.yml.example ~/.dbt/profiles.yml   # completar host/http_path, login con `databricks auth login`
+uv run python scripts/fetch_data.py --upload /Volumes/workspace/bronze/raw_data   # descarga + sincroniza el Volume
+dbt deps
+dbt build        # modelos, seeds, snapshot, tests y unit tests
+```
+
+La ruta del Volume es la var `raw_volume_path` de `dbt_project.yml`.
+
+Lint (dialecto Databricks, plantilla dbt):
+
+```bash
+sqlfluff lint models/ analyses/ tests/
+```
+
+## Actualización automática 🔄
+
+La fuente publica de forma irregular (entre una semana y varios meses), así que el CI
+(`.github/workflows/ci.yml`) revisa **todos los lunes**: `scripts/fetch_data.py`
+descarga los archivos, sube al Volume solo los nuevos o modificados y recién entonces corre
+`dbt build` (que también registra revisiones en el snapshot). La carga es incremental: `int_snvs_all_revisions` solo resuelve los archivos nuevos o reemplazados desde la última corrida (`dbt build --full-refresh` reconstruye todo), regenera la documentación de dbt
+y vuelve a desplegar el sitio en GitHub Pages. Sin novedades no se reconstruye nada. En pull
+requests corre `sqlfluff lint` y `dbt parse` con un perfil ficticio (sin secrets). Requiere los
+secrets `DATABRICKS_HOST`, `DATABRICKS_HTTP_PATH` y `DATABRICKS_TOKEN`.
+
+## Limitaciones ⚠️
+
+- Los casos se asignan al departamento de **residencia**, no al lugar donde ocurrió el contagio.
+- Las últimas semanas están **incompletas** (notificación tardía); ver el hallazgo de nowcast.
+- La población de CABA solo se publica por ciudad, así que sus comunas no tienen tasa.
+- La notificación es despareja entre jurisdicciones: Santa Fe informa 52 casos de ETI cada 100.000 en 2025 (322 en 2019), CABA 240 (815 en 2019), Córdoba 3.379. Una tasa baja puede ser poca notificación y no poca enfermedad.
+- El año en curso es parcial, y 2020-2021 (COVID) distorsionan la base de 5 años del corredor endémico de los años siguientes.
+- Las tasas con menos de 20 casos son inestables; el sitio las muestra atenuadas.
+- El sitio público muestra solo agregados por departamento o provincia, nunca por edad (conteos chicos podrían identificar personas).
+
+## Licencia
 
 Código: MIT ([`LICENSE`](LICENSE)). Datos: Ministerio de Salud (SNVS 2.0) y RENAPER, CC-BY 4.0; contornos
 provinciales de Natural Earth (dominio público).
