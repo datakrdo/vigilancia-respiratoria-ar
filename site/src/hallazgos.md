@@ -95,7 +95,7 @@ const w = num([...await sql`select * from warning`])[0] ?? {};
 
 ## 4. ¿Los focos se concentran y son los mismos cada año?
 
-<p class="so-what">Alrededor de un cuarto de los departamentos reúne el 80% de los casos, y los focos se repiten solo en parte: la superposición con la temporada anterior va de 0,45 a 0,66. Reforzar siempre los mismos lugares deja afuera a una parte de los focos nuevos.</p>
+<p class="so-what">Alrededor de un cuarto de los departamentos reúne el 80% de los casos, y los focos se repiten solo en parte: la superposición con la temporada anterior va de 0,40 a 0,66. Reforzar siempre los mismos lugares deja afuera a una parte de los focos nuevos.</p>
 
 </div>
 

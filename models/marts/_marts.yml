@@ -250,8 +250,8 @@ models:
       Grain: event x department x epi week x year. Rate per 100k, cumulative
       case count/rate within the year, and prior-year same-week case count.
       Population (and therefore the rate) is null for `dim_geography`'s
-      synthetic "Unknown" members and for CABA comunas (see
-      docs/data_profile.md).
+      synthetic "Unknown" members and for any department missing from the INDEC
+      estimates (see docs/data_profile.md).
     config:
       contract:
         enforced: true

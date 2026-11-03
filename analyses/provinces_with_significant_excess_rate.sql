@@ -12,8 +12,8 @@
 -- department-level one), which already carries the province total (see
 -- `int_province_population`).
 -- Finding: for ETI in 2025, 12 of 24 provinces are significantly elevated but only 6 are
--- materially so: Catamarca (RR 4.9), Jujuy (3.9), La Rioja (3.1), Chaco (2.1), Entre Ríos
--- (2.0) and Tucumán (1.7). All are in the north and west; Buenos Aires (RR 0.90) and
+-- materially so: Catamarca (RR 4.8), Jujuy (3.7), La Rioja (3.0), Chaco (2.3), Entre Ríos
+-- (2.0) and Tucumán (1.6). All are in the north and west; Buenos Aires (RR 0.91) and
 -- Córdoba (1.3) carry the most cases but not an unusual burden. Notification practice
 -- differs between jurisdictions, so this ranks reporting intensity as much as risk.
 

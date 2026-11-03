@@ -8,8 +8,8 @@
 -- excess counts favor big provinces just for being big, so the ranking is by rate; the
 -- absolute case count stays as a column for sizing the response. Only complete seasons
 -- with at least `finding_min_corridor_years` years of corridor history are included.
--- Finding: for ETI in 2025, Jujuy leads (3,315 excess cases/100k), ahead of Catamarca
--- (2,231) and Tucumán (2,038), whose raw excess (35,006 cases) is the largest of the top
+-- Finding: for ETI in 2025, Jujuy leads (3,168 excess cases/100k), ahead of Catamarca
+-- (2,238) and Tucumán (1,974), whose raw excess (35,006 cases) is the largest of the top
 -- five. Catamarca is in the top five in 2023, 2024 and 2025, and in the leading provinces
 -- 50% of the season's cases arrive by week 22-28, so a campaign meant to precede the peak
 -- has to be in place by April-May.

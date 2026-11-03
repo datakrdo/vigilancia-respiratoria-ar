@@ -76,7 +76,7 @@ const delta = (c, label) => c ? html`<div class="kpi"><div class="n">${c.pct > 0
 
 ## Map by department
 
-The circle size is the number of cases; the color, the rate per 100,000 population. Gray circles have no reference population (CABA's comunas are only published as a whole city).
+The circle size is the number of cases; the color, the rate per 100,000 population. Gray circles have no reference population (cases with no identified department of residence).
 
 ```js
 display(rateMap({depts, provinces, L, dark, width}));
@@ -92,4 +92,4 @@ display(rateBars({prov, L}));
 
 ${["2020", "2021"].includes(String(year)) ? html`<p class="fineprint"><b>Careful with ${year}:</b> a good share of respiratory illness was notified as suspected COVID-19, an event that is not in this dataset. Cases of ${L.eventName(event)} look underestimated.</p>` : ""}
 
-<p class="fineprint">Comparisons use the last consolidated week: the final two weeks of the running year are dropped because they are always incomplete. Light bars are provinces with fewer than 20 cases: with so few cases the rate is unstable and should not be compared. Notifications are corrected over time: the most recent weeks tend to be underestimated (see <a href="./hallazgos#reporting-delay">reporting delay</a>). Data by the case's residence, not place of infection. Rates also depend on how much each jurisdiction notifies: Santa Fe and CABA notify very little ETI to SNVS 2.0 (Santa Fe, 52 cases per 100,000 in 2025 against 3,379 in Córdoba), so their low rates do not mean less disease.</p>
+<p class="fineprint">Comparisons use the last consolidated week: the final two weeks of the running year are dropped because they are always incomplete. Light bars are provinces with fewer than 20 cases: with so few cases the rate is unstable and should not be compared. Notifications are corrected over time: the most recent weeks tend to be underestimated (see <a href="./hallazgos#reporting-delay">reporting delay</a>). Data by the case's residence, not place of infection. Rates also depend on how much each jurisdiction notifies: Santa Fe and CABA notify very little ETI to SNVS 2.0 (Santa Fe, 50 cases per 100,000 in 2025 against 3,353 in Córdoba), so their low rates do not mean less disease.</p>

@@ -95,7 +95,7 @@ const w = num([...await sql`select * from warning`])[0] ?? {};
 
 ## 4. Are hot spots concentrated, and the same every year?
 
-<p class="so-what">About a quarter of departments hold 80% of the cases, and hot spots repeat only in part: the overlap with the previous season runs from 0.45 to 0.66. Always reinforcing the same places leaves out part of the new hot spots.</p>
+<p class="so-what">About a quarter of departments hold 80% of the cases, and hot spots repeat only in part: the overlap with the previous season runs from 0.40 to 0.66. Always reinforcing the same places leaves out part of the new hot spots.</p>
 
 </div>
 

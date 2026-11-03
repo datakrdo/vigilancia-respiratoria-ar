@@ -16,8 +16,8 @@ de calidad encontrados: [`docs/data_profile.md`](docs/data_profile.md).
   por provincia y temporada, la semana en la que se alcanza
   el 50%/90% de los casos de esa temporada y el exceso total sobre el techo p75 del
   corredor endémico, rankeado por exceso **cada 100 mil habitantes** para que una
-  provincia grande no encabece la lista solo por tamaño. En 2025 lideran Jujuy (3.315
-  casos de exceso/100k), Catamarca (2.231) y Tucumán (2.038); el 50% de los casos de la
+  provincia grande no encabece la lista solo por tamaño. En 2025 lideran Jujuy (3.168
+  casos de exceso/100k), Catamarca (2.238) y Tucumán (1.974); el 50% de los casos de la
   temporada llega antes de la semana 22-28, así que las campañas tienen que estar listas
   en abril-mayo.
 - [`geographic_spread_of_season.sql`](analyses/geographic_spread_of_season.sql) —
@@ -36,8 +36,8 @@ de calidad encontrados: [`docs/data_profile.md`](docs/data_profile.md).
   de riesgo de dónde vive la gente, y superposición Jaccard del decil superior por tasa
   entre temporadas consecutivas. La ETI está concentrada (17-28% de los departamentos reúnen el 80% de los casos de una
   temporada, Gini crudo 0,70-0,80) y es parcialmente persistente (Jaccard del decil
-  superior 0,45-0,66). El Gini ponderado por población es más bajo todas las temporadas
-  (2025: 0,58 contra 0,74 crudo), lo que muestra que parte de la concentración cruda es solo
+  superior 0,40-0,66). El Gini ponderado por población es más bajo todas las temporadas
+  (2025: 0,61 contra 0,74 crudo), lo que muestra que parte de la concentración cruda es solo
   población, no riesgo.
 - [`provinces_with_significant_excess_rate.sql`](analyses/provinces_with_significant_excess_rate.sql) —
   rate ratio contra el resto del país con IC 95% log-Poisson, para separar un exceso
@@ -142,8 +142,8 @@ secrets `DATABRICKS_HOST`, `DATABRICKS_HTTP_PATH` y `DATABRICKS_TOKEN`.
 
 - Los casos se asignan al departamento de **residencia**, no al lugar donde ocurrió el contagio.
 - Las últimas semanas están **incompletas** (notificación tardía); ver el hallazgo de nowcast.
-- La población de CABA solo se publica por ciudad, así que sus comunas no tienen tasa.
-- La notificación es despareja entre jurisdicciones: Santa Fe informa 52 casos de ETI cada 100.000 en 2025 (322 en 2019), CABA 240 (815 en 2019), Córdoba 3.379. Una tasa baja puede ser poca notificación y no poca enfermedad.
+- Las estimaciones de población del INDEC empiezan en 2022, así que las tasas de 2018-2021 usan la de 2022 y son aproximadas.
+- La notificación es despareja entre jurisdicciones: Santa Fe informa 50 casos de ETI cada 100.000 en 2025 (313 en 2019), CABA 262 (888 en 2019), Córdoba 3.353. Una tasa baja puede ser poca notificación y no poca enfermedad.
 - El año en curso es parcial, y 2020-2021 (COVID) distorsionan la base de 5 años del corredor endémico de los años siguientes.
 - Las tasas con menos de 20 casos son inestables; el sitio las muestra atenuadas.
 - El sitio público muestra solo agregados por departamento o provincia, nunca por edad (conteos chicos podrían identificar personas).

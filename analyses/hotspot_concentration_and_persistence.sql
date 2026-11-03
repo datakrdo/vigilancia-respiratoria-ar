@@ -17,9 +17,9 @@
 -- Pareto/Gini columns are unaffected.
 -- Finding: ETI is concentrated: 17-28% of departments account
 -- for 80% of a season's cases and the raw Gini is 0.70-0.80 (2025: 0.74). Hotspots are
--- partly persistent: the top-decile overlap with the previous season is 0.45-0.66
+-- partly persistent: the top-decile overlap with the previous season is 0.40-0.66
 -- (Jaccard), so roughly half of the hot departments repeat. The population-weighted index
--- is lower than the raw Gini every season (2025: 0.58 vs 0.74) -- part of the raw
+-- is lower than the raw Gini every season (2025: 0.61 vs 0.74) -- part of the raw
 -- concentration is just where people live, not risk. Together this argues for standing
 -- capacity in the departments that repeat plus flexible capacity for the ones that do not.
 

@@ -28,5 +28,5 @@ title: Methodology
 - **The latest weeks are incomplete.** Notifications arrive late; see the finding on [reporting delay](./hallazgos#reporting-delay).
 - **Years before 2022.** The estimates start in 2022: 2018-2021 use the 2022 one as the denominator, so those rates are approximate.
 - **No age breakdown.** Small counts by department, age and week could identify people, so this site only publishes aggregates by department or province.
-- **Notification is uneven.** Some jurisdictions notify much less than others to SNVS 2.0: Santa Fe went from 322 ETI cases per 100,000 in 2019 to 52 in 2025, and CABA from 815 to 240, while Córdoba is at 3,379. A low rate may be little notification rather than little disease; compare each province with its own history before comparing it with the others.
+- **Notification is uneven.** Some jurisdictions notify much less than others to SNVS 2.0: Santa Fe went from 313 ETI cases per 100,000 in 2019 to 50 in 2025, and CABA from 888 to 262, while Córdoba is at 3,353. A low rate may be little notification rather than little disease; compare each province with its own history before comparing it with the others.
 - **Notified is not confirmed.** Figures are cases notified to the system, with criteria that may vary between jurisdictions and years.

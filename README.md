@@ -17,7 +17,7 @@ Sources: [respiratory infections](https://datos.salud.gob.ar/dataset/vigilancia-
   per province and season, the week reaching 50%/90% of
   that season's cases and total excess over the endemic corridor's p75 ceiling, ranked
   by excess **per 100k population** so big provinces don't top the list just for being
-  big. In 2025, Jujuy (3,315 excess cases/100k), Catamarca (2,231) and Tucumán (2,038)
+  big. In 2025, Jujuy (3,168 excess cases/100k), Catamarca (2,238) and Tucumán (1,974)
   lead; 50% of the season's cases arrive by week 22-28, so campaigns have to land by
   April-May.
 - [`geographic_spread_of_season.sql`](analyses/geographic_spread_of_season.sql) —
@@ -32,8 +32,8 @@ Sources: [respiratory infections](https://datos.salud.gob.ar/dataset/vigilancia-
   Pareto/Gini concentration of cases across departments, a population-weighted Gini
   (Lorenz curve by rate, not raw cases) to separate risk concentration from where people
   live, plus season-to-season Jaccard overlap of the top decile by rate. ETI is concentrated (17-28% of departments hold 80% of a
-  season's cases, raw Gini 0.70-0.80) and partly persistent (top-decile Jaccard 0.45-0.66).
-  The population-weighted Gini runs lower every season (2025: 0.58 vs. 0.74 raw), showing
+  season's cases, raw Gini 0.70-0.80) and partly persistent (top-decile Jaccard 0.40-0.66).
+  The population-weighted Gini runs lower every season (2025: 0.61 vs. 0.74 raw), showing
   part of the raw concentration is just population, not risk.
 - [`provinces_with_significant_excess_rate.sql`](analyses/provinces_with_significant_excess_rate.sql) —
   rate ratio vs. the rest of the country with a 95% log-Poisson CI, to separate a real
@@ -136,8 +136,8 @@ redeploys the site to GitHub Pages. Nothing new → nothing rebuilt. On pull req
 
 - Cases are assigned to the department of **residence**, not where the infection happened.
 - The most recent weeks are **incomplete** (late notification); see the nowcast finding.
-- CABA's population is only published citywide, so its comunas have no rate.
-- Notification is uneven across jurisdictions: Santa Fe reports 52 ETI cases per 100k in 2025 (322 in 2019), CABA 240 (815 in 2019), Córdoba 3,379. A low rate can mean little reporting, not little disease.
+- INDEC's population estimates start in 2022, so rates for 2018-2021 use the 2022 estimate and are approximate.
+- Notification is uneven across jurisdictions: Santa Fe reports 50 ETI cases per 100k in 2025 (313 in 2019), CABA 262 (888 in 2019), Córdoba 3,353. A low rate can mean little reporting, not little disease.
 - The current year is partial, and 2020-2021 (COVID) distort the 5-year baseline of the endemic corridor for the years that follow.
 - Rates built on fewer than 20 cases are unstable; the site shows them faded.
 - The public site shows only department/province aggregates, never age breakdowns (small counts could identify people).

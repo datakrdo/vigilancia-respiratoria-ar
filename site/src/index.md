@@ -76,7 +76,7 @@ const delta = (c, label) => c ? html`<div class="kpi"><div class="n">${c.pct > 0
 
 ## Mapa por departamento
 
-El tamaño del círculo es la cantidad de casos; el color, la tasa cada 100.000 habitantes. Los círculos grises no tienen población de referencia (las comunas de CABA solo se publican como ciudad completa).
+El tamaño del círculo es la cantidad de casos; el color, la tasa cada 100.000 habitantes. Los círculos grises no tienen población de referencia (casos sin departamento de residencia identificado).
 
 ```js
 display(rateMap({depts, provinces, L, dark, width}));
@@ -92,4 +92,4 @@ display(rateBars({prov, L}));
 
 ${["2020", "2021"].includes(String(year)) ? html`<p class="fineprint"><b>Ojo con ${year}:</b> buena parte de los cuadros respiratorios se notificó como sospecha de COVID-19, un evento que no está en este dataset. Los casos de ${L.eventName(event)} aparecen subestimados.</p>` : ""}
 
-<p class="fineprint">Los comparativos usan la última semana consolidada: se descartan las dos últimas del año en curso porque siempre están incompletas. Las barras claras son provincias con menos de 20 casos: con tan pocos casos la tasa es inestable y no conviene compararla. Las notificaciones se corrigen con el tiempo: las semanas más recientes suelen estar subestimadas (ver <a href="./hallazgos#retraso-de-notificacion">retraso de notificación</a>). Datos por residencia del caso, no por lugar de contagio. Las tasas dependen también de cuánto notifica cada jurisdicción: Santa Fe y CABA notifican muy poca ETI al SNVS 2.0 (Santa Fe, 52 casos cada 100.000 en 2025 contra 3.379 en Córdoba), así que sus tasas bajas no indican menos enfermedad.</p>
+<p class="fineprint">Los comparativos usan la última semana consolidada: se descartan las dos últimas del año en curso porque siempre están incompletas. Las barras claras son provincias con menos de 20 casos: con tan pocos casos la tasa es inestable y no conviene compararla. Las notificaciones se corrigen con el tiempo: las semanas más recientes suelen estar subestimadas (ver <a href="./hallazgos#retraso-de-notificacion">retraso de notificación</a>). Datos por residencia del caso, no por lugar de contagio. Las tasas dependen también de cuánto notifica cada jurisdicción: Santa Fe y CABA notifican muy poca ETI al SNVS 2.0 (Santa Fe, 50 casos cada 100.000 en 2025 contra 3.353 en Córdoba), así que sus tasas bajas no indican menos enfermedad.</p>
