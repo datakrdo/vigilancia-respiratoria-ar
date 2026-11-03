@@ -61,7 +61,9 @@ def _get(url: str, retries: int = 3) -> bytes:
             req = urllib.request.Request(url, headers={"User-Agent": "vigilancia-respiratoria-ar-fetch/1.0"})
             with urllib.request.urlopen(req, context=_context(), timeout=120) as r:
                 return r.read()
-        except OSError:
+        except OSError as e:
+            if isinstance(e, urllib.error.HTTPError):
+                print(f"{url} -> HTTP {e.code}: {e.read(300)!r}", file=sys.stderr)
             if attempt == retries:
                 raise
             time.sleep(2 * attempt)
