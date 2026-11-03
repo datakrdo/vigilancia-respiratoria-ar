@@ -28,7 +28,7 @@ export default {
   toc: false,
   sidebar: false,
   header: nav,
-  footer: `Datos / Data: Ministerio de Salud de la Nación (SNVS 2.0) y/and RENAPER, CC-BY 4.0 · Contornos / Boundaries: Natural Earth · <a href="https://github.com/datakrdo/vigilancia-respiratoria-ar">código / code</a>`,
+  footer: `Datos / Data: Ministerio de Salud de la Nación (SNVS 2.0, CC-BY 4.0) e/and INDEC (api.indec.gob.ar) · Contornos / Boundaries: Natural Earth · <a href="https://github.com/datakrdo/vigilancia-respiratoria-ar">código / code</a>`,
   interpreters: {
     ".py": ["uv", "run", "--frozen", "--no-dev", "--group", "site", "--project", "..", "python"]
   }

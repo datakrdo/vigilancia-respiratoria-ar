@@ -88,11 +88,10 @@ models:
               - year
               - epi_week
 
-  - name: int_renaper_population
+  - name: int_department_population
     description: >
-      RENAPER population resolved to the canonical Georef department. Grain:
-      department x publish date. Unmatched departments fall back to the province's
-      synthetic "Unknown" member.
+      INDEC population estimate per Georef department (same 5-digit code, no name
+      matching). Grain: department x publish date.
     columns:
       - name: department_indec_id
         tests:

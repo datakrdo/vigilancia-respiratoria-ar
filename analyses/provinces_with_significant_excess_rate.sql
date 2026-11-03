@@ -9,8 +9,8 @@
 -- difference is "significant" (Chubut: RR 1.02, CI 1.00-1.03), so the first flag alone
 -- says nothing useful at this volume.
 -- Uses `mart_endemic_corridor`'s province-level population (not `mart_incidence_rates`'
--- department-level one), because CABA only has a population figure at the province level
--- -- RENAPER publishes it as one citywide row (see `int_province_population`).
+-- department-level one), which already carries the province total (see
+-- `int_province_population`).
 -- Finding: for ETI in 2025, 12 of 24 provinces are significantly elevated but only 6 are
 -- materially so: Catamarca (RR 4.9), Jujuy (3.9), La Rioja (3.1), Chaco (2.1), Entre Ríos
 -- (2.0) and Tucumán (1.7). All are in the north and west; Buenos Aires (RR 0.90) and

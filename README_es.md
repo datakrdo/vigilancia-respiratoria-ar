@@ -41,9 +41,7 @@ de calidad encontrados: [`docs/data_profile.md`](docs/data_profile.md).
   población, no riesgo.
 - [`provinces_with_significant_excess_rate.sql`](analyses/provinces_with_significant_excess_rate.sql) —
   rate ratio contra el resto del país con IC 95% log-Poisson, para separar un exceso
-  real de un artefacto de población chica. Usa población a nivel provincia para que
-  CABA (cuya población RENAPER solo publica a nivel ciudad) no quede afuera del
-  ranking. En 2025, 12 de 24 provincias son significativas pero solo 6 tienen un exceso
+  real de un artefacto de población chica. Usa población a nivel provincia. En 2025, 12 de 24 provincias son significativas pero solo 6 tienen un exceso
   material (RR ≥ 1,5), todas del norte y el oeste; en parte rankea intensidad de
   notificación, no solo riesgo.
 - [`reporting_delay_nowcast_factor.sql`](analyses/reporting_delay_nowcast_factor.sql) —
@@ -69,13 +67,13 @@ Ambos sitios se reconstruyen solos cuando la fuente publica datos nuevos (ver *A
 seeds/                  georef_departments, age_group_buckets, event_map (crosswalks)
 sources (Volume CSVs) ──read_files()──► staging/
   stg_respiratory               (IRA 2018+, publicaciones en ventanas superpuestas)
-  stg_renaper_population        (población identificada RENAPER por departamento)
+  stg_indec_population         (estimaciones de población INDEC por departamento)
         │
         ▼
 intermediate/
   int_snvs_all_revisions  toda publicación de cada período, incremental por archivo de origen (grano de mart_revisions)
   int_snvs_unified        una fila canónica por período (última revisión)
-  int_renaper_population
+  int_department_population
         │
         ▼
 snapshots/
@@ -152,5 +150,5 @@ secrets `DATABRICKS_HOST`, `DATABRICKS_HTTP_PATH` y `DATABRICKS_TOKEN`.
 
 ## Licencia
 
-Código: MIT ([`LICENSE`](LICENSE)). Datos: Ministerio de Salud (SNVS 2.0) y RENAPER, CC-BY 4.0; contornos
+Código: MIT ([`LICENSE`](LICENSE)). Datos: Ministerio de Salud (SNVS 2.0, CC-BY 4.0) e INDEC (se cita la fuente); contornos
 provinciales de Natural Earth (dominio público).

@@ -20,5 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Code is MIT. The source data (Argentina's Ministry of Health, SNVS 2.0, and
-RENAPER) is published under CC-BY 4.0 and is not covered by this license.
+Code is MIT. The source data (Argentina's Ministry of Health, SNVS 2.0, under
+CC-BY 4.0, and INDEC population estimates, reusable citing the source) is not
+covered by this license.

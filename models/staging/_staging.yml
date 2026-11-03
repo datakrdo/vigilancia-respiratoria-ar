@@ -1,11 +1,11 @@
 version: 2
 
 models:
-  - name: stg_renaper_population
+  - name: stg_indec_population
     description: >
-      RENAPER identified population by department, one row per published cut
-      (publish_date) and department. The sex/age/nationality breakdown of the source
-      is summed away here.
+      INDEC population estimate by department, one row per year (publish_date is
+      1 July of that year) and department. The sex breakdown of the source is
+      summed away here.
     columns:
       - name: publish_date
         tests:

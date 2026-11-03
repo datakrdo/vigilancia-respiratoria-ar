@@ -6,27 +6,18 @@
 
 -- Grain: event x department x epi week x year. Age group is summed away
 -- here (population is only available totaled, not split by age — see
--- `stg_renaper_population`), unlike `fct_weekly_cases`'s finer grain.
+-- `stg_indec_population`), unlike `fct_weekly_cases`'s finer grain.
 --
--- Population denominator: RENAPER only published 4 cuts (Aug-2024, Jan-2025,
--- Jun-2025, Jun-2026 — see docs/data_profile.md), so every case year is matched to
--- whichever cut's date is closest to that year's Dec 31, including years well before
--- the first cut (2018-2023), which all fall back to the earliest (Aug-2024) cut for
--- lack of anything closer — the best available estimate, not a true historical count.
---
--- CABA is a known gap: RENAPER publishes it as one citywide figure, not by comuna,
--- so it lands on the synthetic "Unknown department in this province" id in
--- `int_renaper_population` and never joins to a real CABA comuna id here — those
--- rows get a null population/rate rather than a guessed one (see
--- `int_renaper_population`).
+-- Population denominator: INDEC publishes one estimate per year (at 1 July, from
+-- 2022 on — see docs/data_profile.md), so each case year is matched to the estimate
+-- whose date is closest to that year's 1 July: an exact match for 2022 onwards, and
+-- the earliest (2022) estimate for the years before it (2018-2021) for lack of
+-- anything closer — the best available estimate, not a true historical count.
 --
 -- `dim_geography`'s synthetic "Unknown" members are excluded from the rate
--- entirely, not just left to join as-is: any population landing there is either
--- CABA's whole population (see above) or a stray unmatched row, neither of which
--- is the true denominator for "residence not identified" case counts — dividing by
--- it would produce a meaningless rate (e.g. Buenos Aires's synthetic bucket has a
--- population of 5 from one unmatched row, against real unidentified-residence
--- cases, which would otherwise imply a nonsensical >1000% incidence rate).
+-- entirely: the estimates only cover real departments, and dividing "residence not
+-- identified" cases by anything else would produce a meaningless rate. A real
+-- department missing from the estimates (94021) also ends up with a null rate.
 
 with weekly_cases as (
 
@@ -52,7 +43,7 @@ case_years as (
 
 population_cuts as (
 
-    select distinct publish_date from {{ ref('int_renaper_population') }}
+    select distinct publish_date from {{ ref('int_department_population') }}
 
 ),
 
@@ -65,7 +56,7 @@ year_to_publish_date as (
             p.publish_date,
             row_number() over (
                 partition by y.year
-                order by abs(datediff(make_date(y.year, 12, 31), p.publish_date))
+                order by abs(datediff(make_date(y.year, 7, 1), p.publish_date))
             ) as rn
         from case_years y
         cross join population_cuts p
@@ -89,7 +80,7 @@ with_population as (
     from weekly_cases w
     left join year_to_publish_date ytp on w.year = ytp.year
     left join {{ ref('dim_geography') }} geo on geo.department_indec_id = w.department_indec_id
-    left join {{ ref('int_renaper_population') }} pop
+    left join {{ ref('int_department_population') }} pop
         on
             pop.department_indec_id = w.department_indec_id
             and pop.publish_date = ytp.publish_date

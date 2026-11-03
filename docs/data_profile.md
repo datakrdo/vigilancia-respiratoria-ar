@@ -50,18 +50,16 @@ grupo_edad_desc, cantidad_casos
 
 ## Rate denominator and canonical geography
 
-- **Population**: RENAPER — "Estructura de población identificada" (`datos.gob.ar`), CSV
-  by department, published several times a year (Aug-2024, Jan-2025, Jun-2025, Jun-2026).
-  Identified population (not an INDEC projection), but by department and with recent
-  updates — better temporal granularity than the census for this use case. The cut
-  closest to each epidemiological year is used as the denominator in
-  `mart_incidence_rates`; see `stg_renaper_population` / `int_renaper_population`.
+- **Population**: INDEC — "Estimaciones de población por departamento y sexo 2022-2035"
+  (`api.indec.gob.ar`, needs a free JWT, `INDEC_TOKEN`). Official population at 1 July of
+  each year by department (528 departments, CABA by comuna) and sex, based on Census 2022.
+  The estimate for each epidemiological year is the denominator in `mart_incidence_rates`;
+  see `stg_indec_population` / `int_department_population`. It uses the same 5-digit
+  department code as Georef, so no name matching.
 - **Known population gaps** (documented in `mart_incidence_rates`, not silently
-  patched): CABA is published as one citywide figure, not by comuna, so no individual
-  CABA comuna gets a population/rate; a handful of small departments (~0.6% of total
-  population) don't name-match Georef and are also left without a rate; and years
-  before the first cut (2018-2023) use the earliest available cut (Aug-2024) as a
-  best-available estimate, not a true historical count.
+  patched): department 94021 is in Georef but not in the estimates, so it gets no rate;
+  and years before the first estimate (2018-2021) use the earliest available one (2022) as
+  a best-available estimate, not a true historical count.
 - **Canonical geography**: [Georef API](https://apis.datos.gob.ar/georef/api/departamentos)
   (`datos.gob.ar`) — 5-digit INDEC department codes. Used as the source for
   `dim_geography` (canonical name, province, centroid) instead of relying on each

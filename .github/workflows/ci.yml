@@ -83,6 +83,8 @@ jobs:
 
       - name: Fetch raw files and sync new ones to the Volume
         id: fetch
+        env:
+          INDEC_TOKEN: ${{ secrets.INDEC_TOKEN }}
         run: uv run python scripts/fetch_data.py --upload /Volumes/workspace/bronze/raw_data
 
       # Scheduled runs with nothing new stop here. Pushes and manual runs always build.

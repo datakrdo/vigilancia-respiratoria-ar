@@ -1,4 +1,4 @@
-"""Download the raw respiratory (IRA) and RENAPER files and (optionally) sync them to the
+"""Download the raw respiratory (IRA) files and INDEC population estimates and (optionally) sync them to the
 Unity Catalog Volume that `read_files()` reads from.
 
     uv run --group ingest python scripts/fetch_data.py                 # download only
@@ -7,7 +7,8 @@ Unity Catalog Volume that `read_files()` reads from.
 Layout written under --out (mirrors the Volume):
     respiratory/           acute respiratory infections (IRA), rolling-window files;
                            .xls/.xlsx also get a `.converted.csv`
-    renaper_population/    department-level cuts
+    indec_population/      INDEC yearly population estimates by department and sex
+                           (needs the INDEC_TOKEN env var, a JWT from api.indec.gob.ar)
 
 Only files whose name or size differ from what is already in the Volume are uploaded,
 so a run with nothing new is a no-op. When running in GitHub Actions the number of
@@ -17,6 +18,7 @@ uploaded files is exposed as the `uploaded` step output.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
 import re
@@ -43,9 +45,11 @@ SALUD_PACKAGE = "vigilancia-de-infecciones-respiratorias-agudas"
 RESPIRATORY_FILE = re.compile(
     r"^(informacion-publica-respiratorias-nacional(?!-hasta-20220905)|vigilancia-respiratorias-agudas-2018)"
 )
-# The federated catalog lists the RENAPER files; the files themselves are on RENAPER's host.
-RENAPER_PACKAGE = "https://datos.gob.ar/api/3/action/package_show?id=estructura-de-poblacion-argentina"
-RENAPER_FILE = re.compile(r"poblacion_identificada_departamento_[a-z]+_\d{4}\.csv$")
+# INDEC population estimates at 1 July of each year, by department and sex (Census 2022 base).
+# PostgREST-style API; the server caps a page at 1000 rows.
+INDEC_API = "https://api.indec.gob.ar/v1/estimaciones_poblacion_departamento_2022_2035"
+INDEC_COLUMNS = ["jurisdiccion_cod", "jurisdiccion_nom", "departamento_cod", "departamento_nom", "sexo_cod", "poblacion", "fecha"]
+INDEC_PAGE = 1000
 
 
 def _context() -> ssl.SSLContext:
@@ -54,11 +58,11 @@ def _context() -> ssl.SSLContext:
     return ctx
 
 
-def _get(url: str, retries: int = 3) -> bytes:
+def _get(url: str, retries: int = 3, headers: dict[str, str] | None = None) -> bytes:
     url = re.sub(r"^http://", "https://", url)
     for attempt in range(1, retries + 1):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "vigilancia-respiratoria-ar-fetch/1.0"})
+            req = urllib.request.Request(url, headers={"User-Agent": "vigilancia-respiratoria-ar-fetch/1.0", **(headers or {})})
             with urllib.request.urlopen(req, context=_context(), timeout=120) as r:
                 return r.read()
         except OSError as e:
@@ -99,17 +103,35 @@ def _to_csv(path: Path) -> Path:
     return out
 
 
+def _download_population(out: Path) -> Path:
+    token = os.environ.get("INDEC_TOKEN") or sys.exit("INDEC_TOKEN is not set (JWT from api.indec.gob.ar)")
+    query = "select=" + ",".join(INDEC_COLUMNS) + "&order=fecha,departamento_cod,sexo_cod&limit=" + str(INDEC_PAGE)
+    rows: list[dict] = []
+    while True:
+        page = json.loads(_get(f"{INDEC_API}?{query}&offset={len(rows)}", headers={"Authorization": f"Bearer {token}"}))
+        rows += page
+        if len(page) < INDEC_PAGE:
+            break
+    if not rows:
+        sys.exit("INDEC population API returned no rows")
+    dest = out / "indec_population" / "estimaciones_departamento.csv"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with dest.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=INDEC_COLUMNS, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(rows)
+    print(f"downloaded {dest.relative_to(out)} ({len(rows):,} rows)")
+    return dest
+
+
 def download(out: Path) -> list[Path]:
     targets: list[tuple[Path, str]] = []
     for url in _resources(SALUD_API + SALUD_PACKAGE):
         name = _name(url)
         if name.lower().endswith((".csv", ".xls", ".xlsx")) and RESPIRATORY_FILE.match(name):
             targets.append((out / "respiratory" / name, url))
-    for url in _resources(RENAPER_PACKAGE):
-        if RENAPER_FILE.search(url):
-            targets.append((out / "renaper_population" / _name(url), url))
 
-    files: list[Path] = []
+    files: list[Path] = [_download_population(out)]
     for dest, url in targets:
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(_get(url))

@@ -12,8 +12,7 @@
 -- Jaccard overlap of that season's top decile of departments -- by rate,
 -- with a >= 20 case floor so a department of 4,000 people with 3 cases can't
 -- rank above a real hotspot -- with the prior season's.
--- Departments without a department-level population (CABA's comunas --
--- RENAPER only publishes CABA citywide, see `mart_incidence_rates`) can't
+-- Departments without a population estimate (see `mart_incidence_rates`) can't
 -- get a rate and are excluded from the rate-based columns only; the raw
 -- Pareto/Gini columns are unaffected.
 -- Finding: ETI is concentrated: 17-28% of departments account
@@ -40,8 +39,8 @@ with dept_season_totals as (
 
 -- department population per season: `mart_incidence_rates` already carries
 -- one population value per department x year (matched to the closest
--- RENAPER cut); a season can span two calendar years, so `max()` picks the
--- more recent of the (at most two) year's cuts.
+-- INDEC estimate); a season can span two calendar years, so `max()` picks the
+-- more recent of the (at most two) years' estimates.
 dept_population as (
 
     select

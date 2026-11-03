@@ -37,8 +37,7 @@ Sources: [respiratory infections](https://datos.salud.gob.ar/dataset/vigilancia-
   part of the raw concentration is just population, not risk.
 - [`provinces_with_significant_excess_rate.sql`](analyses/provinces_with_significant_excess_rate.sql) —
   rate ratio vs. the rest of the country with a 95% log-Poisson CI, to separate a real
-  excess from a small-population fluke. Uses province-level population so CABA (whose
-  population RENAPER only publishes citywide) isn't silently dropped. In 2025, 12 of 24
+  excess from a small-population fluke. Uses province-level population. In 2025, 12 of 24
   provinces are significant but only 6 are materially elevated (RR ≥ 1.5), all in the
   north and west; it partly ranks reporting intensity, not only risk.
 - [`reporting_delay_nowcast_factor.sql`](analyses/reporting_delay_nowcast_factor.sql) —
@@ -62,13 +61,13 @@ Both sites rebuild by themselves when the source publishes new data (see *Automa
 seeds/                  georef_departments, age_group_buckets, event_map (crosswalks)
 sources (Volume CSVs) ──read_files()──► staging/
   stg_respiratory               (IRA 2018+, rolling-window releases)
-  stg_renaper_population        (RENAPER identified population by department)
+  stg_indec_population         (INDEC population estimates by department)
         │
         ▼
 intermediate/
   int_snvs_all_revisions  every publication of every period, incremental by source file (mart_revisions' grain)
   int_snvs_unified        one canonical row per period (latest revision)
-  int_renaper_population
+  int_department_population
         │
         ▼
 snapshots/
@@ -145,5 +144,5 @@ redeploys the site to GitHub Pages. Nothing new → nothing rebuilt. On pull req
 
 ## License
 
-Code: MIT ([`LICENSE`](LICENSE)). Data: Ministry of Health (SNVS 2.0) and RENAPER, CC-BY 4.0; province
+Code: MIT ([`LICENSE`](LICENSE)). Data: Ministry of Health (SNVS 2.0, CC-BY 4.0) and INDEC (source cited); province
 outlines from Natural Earth (public domain).

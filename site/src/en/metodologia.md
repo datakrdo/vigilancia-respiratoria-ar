@@ -7,7 +7,7 @@ title: Methodology
 ## Where the numbers come from
 
 - **Cases:** a dataset of SNVS 2.0, Argentina's National Ministry of Health, CC-BY 4.0 license: [Acute respiratory infection surveillance](https://datos.salud.gob.ar/dataset/vigilancia-de-infecciones-respiratorias-agudas) (influenza-like illness, bronchiolitis in children under 2 and pneumonia). Files are published in overlapping windows and some years were republished several times with different figures: for each year the latest publication is used.
-- **Population:** [Identified population structure](https://datos.gob.ar/dataset/renaper-estructura-poblacion-argentina), RENAPER, CC-BY 4.0. It is population with a national ID, not an INDEC projection.
+- **Population:** [Population estimates by department](https://api.indec.gob.ar), INDEC. Population at 1 July of each year, based on Census 2022.
 - **Geography:** department and province codes from [Georef](https://datosgobar.github.io/georef-ar-api/). Province outlines from [Natural Earth](https://www.naturalearthdata.com/) (public domain).
 - **Updates:** once a week the pipeline checks for new or modified files; if there are none, the site is not rebuilt.
 
@@ -26,7 +26,7 @@ title: Methodology
 
 - **Residence, not infection.** Cases are assigned to the department of residence, which may not be where the person was infected.
 - **The latest weeks are incomplete.** Notifications arrive late; see the finding on [reporting delay](./hallazgos#reporting-delay).
-- **CABA is published as one city.** RENAPER reports the population of CABA as a whole, not by comuna: comunas appear without a rate.
+- **Years before 2022.** The estimates start in 2022: 2018-2021 use the 2022 one as the denominator, so those rates are approximate.
 - **No age breakdown.** Small counts by department, age and week could identify people, so this site only publishes aggregates by department or province.
 - **Notification is uneven.** Some jurisdictions notify much less than others to SNVS 2.0: Santa Fe went from 322 ETI cases per 100,000 in 2019 to 52 in 2025, and CABA from 815 to 240, while Córdoba is at 3,379. A low rate may be little notification rather than little disease; compare each province with its own history before comparing it with the others.
 - **Notified is not confirmed.** Figures are cases notified to the system, with criteria that may vary between jurisdictions and years.

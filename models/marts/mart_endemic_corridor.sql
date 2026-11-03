@@ -24,11 +24,11 @@
 --
 -- `incidence_rate_per_100k` is for reading a single week's size (2000 cases in
 -- Buenos Aires isn't the same burden as 2000 in Tierra del Fuego); the corridor
--- zone itself stays in raw case counts on purpose. RENAPER's population cuts only
--- start in Aug-2024 (see `mart_incidence_rates`), so every year 2018-2023 is matched
--- to that same earliest cut — a province's denominator is constant across that whole
--- span, which means computing the corridor on rates instead of counts would produce
--- the exact same p25/p50/p75 zone for every year that shares a cut. Not worth the
+-- zone itself stays in raw case counts on purpose. INDEC's population estimates
+-- start in 2022 (see `mart_incidence_rates`), so every year 2018-2022 is matched
+-- to that same earliest estimate — a province's denominator is constant across that
+-- whole span, which means computing the corridor on rates instead of counts would
+-- produce the exact same p25/p50/p75 zone for every year that shares an estimate. Not worth the
 -- extra join for a transformation that's a no-op on the classification itself.
 
 with population_cuts as (
@@ -46,7 +46,7 @@ year_to_publish_date as (
             p.publish_date,
             row_number() over (
                 partition by y.target_year
-                order by abs(datediff(make_date(y.target_year, 12, 31), p.publish_date))
+                order by abs(datediff(make_date(y.target_year, 7, 1), p.publish_date))
             ) as rn
         from (select distinct year as target_year from {{ ref('fct_weekly_cases') }}) y
         cross join population_cuts p
